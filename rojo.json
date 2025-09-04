@@ -1,0 +1,27 @@
+{
+  "name": "DNF-DS_MVP",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedFirst": {
+      "$path": "ReplicatedFirst"
+    },
+    "ReplicatedStorage": {
+      "$path": "ReplicatedStorage"
+    },
+    "ServerScriptService": {
+      "$path": "ServerScriptService"
+    },
+    "ServerStorage": {
+      "$path": "ServerStorage"
+    },
+    "StarterGui": {
+      "$path": "StarterGui"
+    },
+    "StarterPlayer": {
+      "$path": "StarterPlayer"
+    },
+    "Workspace": {
+      "$path": "Workspace"
+    }
+  }
+}
