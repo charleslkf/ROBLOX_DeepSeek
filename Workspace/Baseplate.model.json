@@ -1,0 +1,23 @@
+{
+  "ClassName": "Part",
+  "Properties": {
+    "Name": "Baseplate",
+    "Anchored": true,
+    "Color": [
+      0.38823529411764707,
+      0.37254901960784315,
+      0.38823529411764707
+    ],
+    "Locked": true,
+    "Position": [
+      0,
+      -10,
+      0
+    ],
+    "Size": [
+      2048,
+      20,
+      2048
+    ]
+  }
+}
