@@ -1,0 +1,23 @@
+{
+  "ClassName": "Part",
+  "Properties": {
+    "Name": "Wall3",
+    "Anchored": true,
+    "Color": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "Material": "Concrete",
+    "Position": [
+      50,
+      10,
+      0
+    ],
+    "Size": [
+      4,
+      20,
+      50
+    ]
+  }
+}
