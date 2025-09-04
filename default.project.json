@@ -29,9 +29,7 @@
     },
     "Workspace": {
       "$path": "Workspace",
-      "$ignore": [
-        "Terrain"
-      ]
+      "$ignoreUnknownInstances": true
     }
   }
 }
