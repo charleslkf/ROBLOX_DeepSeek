@@ -1,0 +1,19 @@
+{
+  "ClassName": "Part",
+  "Properties": {
+    "Name": "HookSpawn2",
+    "Anchored": true,
+    "CanCollide": false,
+    "Size": [
+      2,
+      2,
+      2
+    ],
+    "Position": [
+      0,
+      1,
+      -25
+    ],
+    "Transparency": 1
+  }
+}

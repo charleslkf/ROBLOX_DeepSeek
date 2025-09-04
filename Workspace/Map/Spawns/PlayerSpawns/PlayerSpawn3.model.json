@@ -1,0 +1,19 @@
+{
+  "ClassName": "SpawnLocation",
+  "Properties": {
+    "Name": "PlayerSpawn3",
+    "Anchored": true,
+    "Size": [
+      4,
+      1,
+      4
+    ],
+    "Position": [
+      0,
+      0.5,
+      0
+    ],
+    "Transparency": 0.5,
+    "Shape": "Brick"
+  }
+}

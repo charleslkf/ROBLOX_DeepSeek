@@ -1,0 +1,19 @@
+{
+  "ClassName": "Part",
+  "Properties": {
+    "Name": "GeneratorSpawn5",
+    "Anchored": true,
+    "CanCollide": false,
+    "Size": [
+      2,
+      2,
+      2
+    ],
+    "Position": [
+      0,
+      1,
+      -60
+    ],
+    "Transparency": 1
+  }
+}
