@@ -1,5 +1,6 @@
 {
   "name": "DNF-DS_MVP",
+  "servePort": 55658,
   "tree": {
     "$className": "DataModel",
     "ReplicatedFirst": {
