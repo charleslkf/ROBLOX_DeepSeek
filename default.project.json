@@ -19,10 +19,19 @@
       "$path": "StarterGui"
     },
     "StarterPlayer": {
-      "$path": "StarterPlayer"
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$path": "StarterPlayer/StarterPlayerScripts"
+      },
+      "StarterCharacterScripts": {
+        "$path": "StarterPlayer/StarterCharacterScripts"
+      }
     },
     "Workspace": {
-      "$path": "Workspace"
+      "$path": "Workspace",
+      "$ignore": [
+        "Terrain"
+      ]
     }
   }
 }
