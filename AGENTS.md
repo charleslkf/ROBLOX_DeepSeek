@@ -27,3 +27,8 @@ This document contains a set of rules and guidelines to follow during the develo
 
 - **Game Manual (`game_manual.md`):** For questions about game rules, mechanics, and objectives, refer to this file first.
 - **Project Roadmap (`project_roadmap.md`):** For questions about the development plan, task sequence, and MVP features, refer to this file first.
+
+## 6. Strategic Pivots
+
+- **Directive is King:** The user's most recent directive or strategic pivot always supersedes all previous plans and documentation.
+- **Docs First:** When a major pivot occurs, the first priority is to update all relevant documentation (`game_manual.md`, `project_roadmap.md`, `AGENTS.md`) to reflect the new strategy. Code implementation must wait until the documentation is aligned.
