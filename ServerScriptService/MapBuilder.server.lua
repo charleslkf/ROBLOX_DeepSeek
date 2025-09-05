@@ -2,11 +2,12 @@
     MapBuilder.server.lua
 
     This script programmatically generates the entire map layout at runtime.
-    This version uses explicit property tables for each part to avoid any
-    potential bugs related to table reuse.
+    This version uses explicit property tables for each part and sets
+    position explicitly to ensure correctness.
 ]]
 
 local Workspace = game:GetService("Workspace")
+local CollectionService = game:GetService("CollectionService")
 
 -- Main container for all map elements
 local map = Instance.new("Folder")
@@ -44,13 +45,13 @@ end
 -- =============================================================================
 -- Create Baseplate
 -- =============================================================================
-createPart("Baseplate", Workspace, {
+local baseplate = createPart("Baseplate", Workspace, {
     Anchored = true,
     Color = Color3.fromRGB(99, 95, 99),
     Locked = true,
-    Position = Vector3.new(0, -10, 0),
     Size = Vector3.new(2048, 20, 2048)
 })
+baseplate.Position = Vector3.new(0, -10, 0)
 
 -- =============================================================================
 -- Create Simple Walls
@@ -59,35 +60,36 @@ local walls = Instance.new("Folder")
 walls.Name = "Walls"
 walls.Parent = map
 
-createPart("Wall1", walls, {
+local wall1 = createPart("Wall1", walls, {
     Anchored = true,
     Color = Color3.fromRGB(128, 128, 128),
     Material = Enum.Material.Concrete,
     TopSurface = Enum.SurfaceType.Smooth,
     BottomSurface = Enum.SurfaceType.Smooth,
-    Size = Vector3.new(100, 20, 4),
-    Position = Vector3.new(0, 10, 50)
+    Size = Vector3.new(100, 20, 4)
 })
+wall1.Position = Vector3.new(0, 10, 50)
 
-createPart("Wall2", walls, {
+local wall2 = createPart("Wall2", walls, {
     Anchored = true,
     Color = Color3.fromRGB(128, 128, 128),
     Material = Enum.Material.Concrete,
     TopSurface = Enum.SurfaceType.Smooth,
     BottomSurface = Enum.SurfaceType.Smooth,
-    Size = Vector3.new(4, 20, 50),
-    Position = Vector3.new(-50, 10, 0)
+    Size = Vector3.new(4, 20, 50)
 })
+wall2.Position = Vector3.new(-50, 10, 0)
 
-createPart("Wall3", walls, {
+local wall3 = createPart("Wall3", walls, {
     Anchored = true,
     Color = Color3.fromRGB(128, 128, 128),
     Material = Enum.Material.Concrete,
     TopSurface = Enum.SurfaceType.Smooth,
     BottomSurface = Enum.SurfaceType.Smooth,
-    Size = Vector3.new(4, 20, 50),
-    Position = Vector3.new(50, 10, 0)
+    Size = Vector3.new(4, 20, 50)
 })
+wall3.Position = Vector3.new(50, 10, 0)
+
 
 -- =============================================================================
 -- Create Vaultable Window
@@ -96,35 +98,35 @@ local windowModel = Instance.new("Model")
 windowModel.Name = "WindowVault1"
 windowModel.Parent = interactables
 
-createPart("WallLeft", windowModel, {
+local wallLeft = createPart("WallLeft", windowModel, {
     Anchored = true,
     Color = Color3.fromRGB(128, 128, 128),
     Material = Enum.Material.Concrete,
     TopSurface = Enum.SurfaceType.Smooth,
     BottomSurface = Enum.SurfaceType.Smooth,
-    Size = Vector3.new(5, 20, 2),
-    Position = Vector3.new(-45.5, 10, 80)
+    Size = Vector3.new(5, 20, 2)
 })
+wallLeft.Position = Vector3.new(-45.5, 10, 80)
 
-createPart("WallRight", windowModel, {
+local wallRight = createPart("WallRight", windowModel, {
     Anchored = true,
     Color = Color3.fromRGB(128, 128, 128),
     Material = Enum.Material.Concrete,
     TopSurface = Enum.SurfaceType.Smooth,
     BottomSurface = Enum.SurfaceType.Smooth,
-    Size = Vector3.new(5, 20, 2),
-    Position = Vector3.new(-34.5, 10, 80)
+    Size = Vector3.new(5, 20, 2)
 })
+wallRight.Position = Vector3.new(-34.5, 10, 80)
 
-createPart("WallTop", windowModel, {
+local wallTop = createPart("WallTop", windowModel, {
     Anchored = true,
     Color = Color3.fromRGB(128, 128, 128),
     Material = Enum.Material.Concrete,
     TopSurface = Enum.SurfaceType.Smooth,
     BottomSurface = Enum.SurfaceType.Smooth,
-    Size = Vector3.new(6, 4, 2),
-    Position = Vector3.new(-40, 18, 80)
+    Size = Vector3.new(6, 4, 2)
 })
+wallTop.Position = Vector3.new(-40, 18, 80)
 
 -- =============================================================================
 -- Create Droppable Pallet
@@ -133,41 +135,39 @@ local palletModel = Instance.new("Model")
 palletModel.Name = "Pallet1"
 palletModel.Parent = interactables
 
-createPart("PostLeft", palletModel, {
+local postLeft = createPart("PostLeft", palletModel, {
     Anchored = true,
     Color = Color3.fromRGB(153, 102, 51),
     Material = Enum.Material.Wood,
     Shape = Enum.PartType.Cylinder,
     Size = Vector3.new(2, 10, 2),
     TopSurface = Enum.SurfaceType.Smooth,
-    BottomSurface = Enum.SurfaceType.Smooth,
-    Position = Vector3.new(-36, 5, 0)
+    BottomSurface = Enum.SurfaceType.Smooth
 })
+postLeft.Position = Vector3.new(-36, 5, 0)
 
-createPart("PostRight", palletModel, {
+local postRight = createPart("PostRight", palletModel, {
     Anchored = true,
     Color = Color3.fromRGB(153, 102, 51),
     Material = Enum.Material.Wood,
     Shape = Enum.PartType.Cylinder,
     Size = Vector3.new(2, 10, 2),
     TopSurface = Enum.SurfaceType.Smooth,
-    BottomSurface = Enum.SurfaceType.Smooth,
-    Position = Vector3.new(-24, 5, 0)
+    BottomSurface = Enum.SurfaceType.Smooth
 })
+postRight.Position = Vector3.new(-24, 5, 0)
 
-createPart("Pallet", palletModel, {
-    Anchored = true, -- Start anchored, will be unanchored by script
+local pallet = createPart("Pallet", palletModel, {
+    Anchored = true,
     Color = Color3.fromRGB(178, 127, 76),
     Material = Enum.Material.Wood,
-    Size = Vector3.new(10, 8, 1),
-    Position = Vector3.new(-30, 4, 0)
+    Size = Vector3.new(10, 8, 1)
 })
+pallet.Position = Vector3.new(-30, 4, 0)
 
 -- =============================================================================
 -- Create Spawn Locations
 -- =============================================================================
-local CollectionService = game:GetService("CollectionService")
-
 -- Player Spawns
 local playerSpawns = Instance.new("Folder")
 playerSpawns.Name = "PlayerSpawns"
@@ -179,11 +179,11 @@ local playerSpawnPositions = {
 for i, pos in ipairs(playerSpawnPositions) do
     local spawn = Instance.new("SpawnLocation")
     spawn.Name = "PlayerSpawn" .. i
-    spawn.Position = pos
-    spawn.Parent = playerSpawns
     spawn.Anchored = true
     spawn.Size = Vector3.new(4, 1, 4)
     spawn.Transparency = 0.5
+    spawn.Parent = playerSpawns
+    spawn.Position = pos
 end
 
 -- Generator Spawns
@@ -199,12 +199,12 @@ for i, pos in ipairs(generatorSpawnPositions) do
         Anchored = true,
         CanCollide = false,
         Size = Vector3.new(2, 2, 2),
-        Position = pos,
         Transparency = 0.5,
-        Color = Color3.fromRGB(255, 255, 0) -- Yellow to see them for now
+        Color = Color3.fromRGB(255, 255, 0)
     })
+    genSpawn.Position = pos
     CollectionService:AddTag(genSpawn, "Interactable")
     CollectionService:AddTag(genSpawn, "Generator")
 end
 
-print("MapBuilder.server.lua: Map generation complete (v2).")
+print("MapBuilder.server.lua: Map generation complete (v3).")
