@@ -164,18 +164,47 @@ createPart("Pallet", palletModel, {
 })
 
 -- =============================================================================
--- Create Spawn Locations (Positions to be added later)
+-- Create Spawn Locations
 -- =============================================================================
+local CollectionService = game:GetService("CollectionService")
+
+-- Player Spawns
 local playerSpawns = Instance.new("Folder")
 playerSpawns.Name = "PlayerSpawns"
 playerSpawns.Parent = spawns
-for i = 1, 5 do
+local playerSpawnPositions = {
+    Vector3.new(-20, 0.5, -20), Vector3.new(20, 0.5, -20), Vector3.new(0, 0.5, 0),
+    Vector3.new(-20, 0.5, 20), Vector3.new(20, 0.5, 20)
+}
+for i, pos in ipairs(playerSpawnPositions) do
     local spawn = Instance.new("SpawnLocation")
     spawn.Name = "PlayerSpawn" .. i
+    spawn.Position = pos
     spawn.Parent = playerSpawns
     spawn.Anchored = true
     spawn.Size = Vector3.new(4, 1, 4)
     spawn.Transparency = 0.5
+end
+
+-- Generator Spawns
+local generatorSpawns = Instance.new("Folder")
+generatorSpawns.Name = "GeneratorSpawns"
+generatorSpawns.Parent = objectives
+local generatorSpawnPositions = {
+    Vector3.new(-40, 1, 40), Vector3.new(40, 1, 40), Vector3.new(-40, 1, -40),
+    Vector3.new(40, 1, -40), Vector3.new(0, 1, -60)
+}
+for i, pos in ipairs(generatorSpawnPositions) do
+    local genSpawn = createPart("Generator" .. i, generatorSpawns, {
+        Anchored = true,
+        CanCollide = false,
+        Size = Vector3.new(2, 2, 2),
+        Position = pos,
+        Transparency = 1,
+        Color = Color3.fromRGB(255, 255, 0) -- Yellow to see them for now
+    })
+    CollectionService:AddTag(genSpawn, "Interactable")
+    CollectionService:AddTag(genSpawn, "Generator")
 end
 
 print("MapBuilder.server.lua: Map generation complete (v2).")

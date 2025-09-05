@@ -88,7 +88,6 @@ damageEvent.Parent = character
 -- OnServerEvent is used for client-to-server communication.
 -- The 'firingPlayer' is automatically the player who fired the event from their client.
 damageEvent.OnServerEvent:Connect(function(firingPlayer)
-    print("DEBUG: DamageEvent received for " .. player.Name .. " (fired by " .. firingPlayer.Name .. ")")
     local currentState = healthState.Value
 
     if currentState == "Healthy" then
@@ -100,5 +99,3 @@ damageEvent.OnServerEvent:Connect(function(firingPlayer)
         print(player.Name .. " is already downed.")
     end
 end)
-
-print("DEBUG: DamageEvent connection set up for " .. player.Name)
