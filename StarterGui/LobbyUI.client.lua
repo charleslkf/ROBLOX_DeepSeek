@@ -33,7 +33,9 @@ readyButton.MouseButton1Click:Connect(function()
     readyButton.Active = false -- Disable the button after clicking
 end)
 
--- A server script should destroy this UI when the game starts.
--- game.ReplicatedStorage.StartGameEvent.OnClientEvent:Connect(function()
---     screenGui:Destroy()
--- end)
+-- Listen for the game start signal from the server to destroy the UI
+local gameStartEvent = ReplicatedStorage:WaitForChild("GameStartEvent")
+gameStartEvent.OnClientEvent:Connect(function()
+    print("Game is starting. Removing lobby UI.")
+    screenGui:Destroy()
+end)

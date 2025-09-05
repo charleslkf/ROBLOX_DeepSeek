@@ -21,6 +21,10 @@ local playerReadyEvent = Instance.new("RemoteEvent")
 playerReadyEvent.Name = "PlayerReadyEvent"
 playerReadyEvent.Parent = ReplicatedStorage
 
+local gameStartEvent = Instance.new("RemoteEvent")
+gameStartEvent.Name = "GameStartEvent"
+gameStartEvent.Parent = ReplicatedStorage
+
 -- Function to check if the game can start
 local function tryStartGame()
     -- Prevent starting more than once
@@ -54,16 +58,8 @@ local function tryStartGame()
         if #playersForGame >= GameManager.MIN_PLAYERS then
             GameManager:StartGame(playersForGame)
 
-            -- Clean up lobby UI for all players
-            for _, player in ipairs(playersInGame) do
-                local playerGui = player:FindFirstChild("PlayerGui")
-                if playerGui then
-                    local lobbyUI = playerGui:FindFirstChild("LobbyUI")
-                    if lobbyUI then
-                        lobbyUI:Destroy()
-                    end
-                end
-            end
+            -- Tell all clients to clean up their lobby UI
+            gameStartEvent:FireAllClients()
         else
             -- Not enough players, reset
             gameStarted = false
