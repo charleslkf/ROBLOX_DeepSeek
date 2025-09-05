@@ -200,7 +200,7 @@ for i, pos in ipairs(generatorSpawnPositions) do
         CanCollide = false,
         Size = Vector3.new(2, 2, 2),
         Position = pos,
-        Transparency = 1,
+        Transparency = 0.5,
         Color = Color3.fromRGB(255, 255, 0) -- Yellow to see them for now
     })
     CollectionService:AddTag(genSpawn, "Interactable")
