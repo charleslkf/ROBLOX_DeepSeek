@@ -1,10 +1,7 @@
 {
   "ClassName": "Model",
   "Properties": {
-    "Name": "Pallet1",
-    "PrimaryPart": {
-      "$ref": "Pallet"
-    }
+    "Name": "Pallet1"
   },
   "$children": [
     {
