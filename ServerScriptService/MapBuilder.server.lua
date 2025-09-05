@@ -31,10 +31,12 @@ interactables.Parent = map
 local function createPart(name, parent, properties)
     local part = Instance.new("Part")
     part.Name = name
-    part.Parent = parent
+    -- Set properties first
     for prop, value in pairs(properties) do
         part[prop] = value
     end
+    -- Set parent last
+    part.Parent = parent
     return part
 end
 
