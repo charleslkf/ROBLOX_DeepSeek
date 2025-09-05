@@ -17,13 +17,10 @@ local readyPlayers = {}
 local gameStarted = false
 
 -- Create the RemoteEvent for player readiness
-local playerReadyEvent = Instance.new("RemoteEvent")
-playerReadyEvent.Name = "PlayerReadyEvent"
-playerReadyEvent.Parent = ReplicatedStorage
-
-local gameStartEvent = Instance.new("RemoteEvent")
-gameStartEvent.Name = "GameStartEvent"
-gameStartEvent.Parent = ReplicatedStorage
+-- Get references to the pre-defined RemoteEvents
+local EventsFolder = ReplicatedStorage:WaitForChild("Events")
+local playerReadyEvent = EventsFolder:WaitForChild("PlayerReadyEvent")
+local gameStartEvent = EventsFolder:WaitForChild("GameStartEvent")
 
 -- Function to check if the game can start
 local function tryStartGame()

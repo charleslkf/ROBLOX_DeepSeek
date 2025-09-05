@@ -10,7 +10,10 @@ local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
 
 -- Get the RemoteEvent for player readiness
-local playerReadyEvent = ReplicatedStorage:WaitForChild("PlayerReadyEvent")
+-- Get references to RemoteEvents
+local EventsFolder = ReplicatedStorage:WaitForChild("Events")
+local playerReadyEvent = EventsFolder:WaitForChild("PlayerReadyEvent")
+local gameStartEvent = EventsFolder:WaitForChild("GameStartEvent")
 
 -- Create the ScreenGui
 local screenGui = Instance.new("ScreenGui")
@@ -34,7 +37,6 @@ readyButton.MouseButton1Click:Connect(function()
 end)
 
 -- Listen for the game start signal from the server to destroy the UI
-local gameStartEvent = ReplicatedStorage:WaitForChild("GameStartEvent")
 gameStartEvent.OnClientEvent:Connect(function()
     print("Game is starting. Removing lobby UI.")
     screenGui:Destroy()
