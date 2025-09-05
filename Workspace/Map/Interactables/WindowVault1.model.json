@@ -1,10 +1,7 @@
 {
   "ClassName": "Model",
   "Properties": {
-    "Name": "WindowVault1",
-    "PrimaryPart": {
-      "$ref": "VaultDetector"
-    }
+    "Name": "WindowVault1"
   },
   "$children": [
     {
