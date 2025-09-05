@@ -1,0 +1,149 @@
+--[[
+    MapBuilder.server.lua
+
+    This script programmatically generates the entire map layout at runtime.
+    This approach is used to avoid issues with Rojo model file syncing.
+]]
+
+local Workspace = game:GetService("Workspace")
+
+-- Main container for all map elements
+local map = Instance.new("Folder")
+map.Name = "Map"
+map.Parent = Workspace
+
+-- Sub-folders for organization
+local spawns = Instance.new("Folder")
+spawns.Name = "Spawns"
+spawns.Parent = map
+
+local objectives = Instance.new("Folder")
+objectives.Name = "Objectives"
+objectives.Parent = map
+
+local interactables = Instance.new("Folder")
+interactables.Name = "Interactables"
+interactables.Parent = map
+
+-- =============================================================================
+-- Helper function to create a basic part
+-- =============================================================================
+local function createPart(name, parent, properties)
+    local part = Instance.new("Part")
+    part.Name = name
+    part.Parent = parent
+    for prop, value in pairs(properties) do
+        part[prop] = value
+    end
+    return part
+end
+
+-- =============================================================================
+-- Create Baseplate
+-- =============================================================================
+createPart("Baseplate", Workspace, {
+    Anchored = true,
+    Color = Color3.fromRGB(99, 95, 99),
+    Locked = true,
+    Position = Vector3.new(0, -10, 0),
+    Size = Vector3.new(2048, 20, 2048)
+})
+
+-- =============================================================================
+-- Create Simple Walls
+-- =============================================================================
+local walls = Instance.new("Folder")
+walls.Name = "Walls"
+walls.Parent = map
+
+local wallProperties = {
+    Anchored = true,
+    Color = Color3.fromRGB(128, 128, 128),
+    Material = Enum.Material.Concrete,
+    TopSurface = Enum.SurfaceType.Smooth,
+    BottomSurface = Enum.SurfaceType.Smooth
+}
+
+wallProperties.Size = Vector3.new(100, 20, 4)
+wallProperties.Position = Vector3.new(0, 10, 50)
+createPart("Wall1", walls, wallProperties)
+
+wallProperties.Size = Vector3.new(4, 20, 50)
+wallProperties.Position = Vector3.new(-50, 10, 0)
+createPart("Wall2", walls, wallProperties)
+
+wallProperties.Size = Vector3.new(4, 20, 50)
+wallProperties.Position = Vector3.new(50, 10, 0)
+createPart("Wall3", walls, wallProperties)
+
+-- =============================================================================
+-- Create Vaultable Window
+-- =============================================================================
+local windowModel = Instance.new("Model")
+windowModel.Name = "WindowVault1"
+windowModel.Parent = interactables
+
+local windowPartProps = {
+    Anchored = true,
+    Color = Color3.fromRGB(128, 128, 128),
+    Material = Enum.Material.Concrete,
+    TopSurface = Enum.SurfaceType.Smooth,
+    BottomSurface = Enum.SurfaceType.Smooth
+}
+windowPartProps.Size = Vector3.new(5, 20, 2)
+windowPartProps.Position = Vector3.new(-45.5, 10, 80)
+createPart("WallLeft", windowModel, windowPartProps)
+
+windowPartProps.Position = Vector3.new(-34.5, 10, 80)
+createPart("WallRight", windowModel, windowPartProps)
+
+windowPartProps.Size = Vector3.new(6, 4, 2)
+windowPartProps.Position = Vector3.new(-40, 18, 80)
+createPart("WallTop", windowModel, windowPartProps)
+
+-- =============================================================================
+-- Create Droppable Pallet
+-- =============================================================================
+local palletModel = Instance.new("Model")
+palletModel.Name = "Pallet1"
+palletModel.Parent = interactables
+
+local postProps = {
+    Anchored = true,
+    Color = Color3.fromRGB(153, 102, 51),
+    Material = Enum.Material.Wood,
+    Shape = Enum.PartType.Cylinder,
+    Size = Vector3.new(2, 10, 2),
+    TopSurface = Enum.SurfaceType.Smooth,
+    BottomSurface = Enum.SurfaceType.Smooth
+}
+postProps.Position = Vector3.new(-36, 5, 0)
+createPart("PostLeft", palletModel, postProps)
+
+postProps.Position = Vector3.new(-24, 5, 0)
+createPart("PostRight", palletModel, postProps)
+
+createPart("Pallet", palletModel, {
+    Anchored = true, -- Start anchored, will be unanchored by script
+    Color = Color3.fromRGB(178, 127, 76),
+    Material = Enum.Material.Wood,
+    Size = Vector3.new(10, 8, 1),
+    Position = Vector3.new(-30, 4, 0)
+})
+
+-- =============================================================================
+-- Create Spawn Locations (Positions to be added later)
+-- =============================================================================
+local playerSpawns = Instance.new("Folder")
+playerSpawns.Name = "PlayerSpawns"
+playerSpawns.Parent = spawns
+for i = 1, 5 do
+    local spawn = Instance.new("SpawnLocation")
+    spawn.Name = "PlayerSpawn" .. i
+    spawn.Parent = playerSpawns
+    spawn.Anchored = true
+    spawn.Size = Vector3.new(4, 1, 4)
+    spawn.Transparency = 0.5
+end
+
+print("MapBuilder.server.lua: Map generation complete.")

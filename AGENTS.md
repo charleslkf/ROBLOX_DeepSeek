@@ -6,7 +6,7 @@ This document contains a set of rules and guidelines to follow during the develo
 
 - **Filename:** The project file **must** be named `default.project.json`. Do not use `rojo.json`.
 - **Ignoring Instances:** To prevent Rojo from deleting instances in the Studio (like `Terrain`), do not use the `$ignore` property. Instead, use the more compatible `"$ignoreUnknownInstances": true` property on the relevant node (e.g., `Workspace`).
-- **Defining Core Instances:** Any essential part of the game world that should not be deleted by Rojo (e.g., the `BasePlate`) **must** be defined as a file in the `Workspace` folder, typically as a `.model.json` file.
+- **Map Generation:** Due to unstable Rojo syncing for models, all map elements (Baseplate, walls, interactables, etc.) **must** be created programmatically. The authoritative script for this is `ServerScriptService/MapBuilder.server.lua`. Do not use `.model.json` files for map parts.
 
 ## 2. Versioning
 
