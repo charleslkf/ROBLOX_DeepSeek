@@ -14,19 +14,49 @@ GameManager.GameState = {
     PostGame = "PostGame"
 }
 
+-- Constants
+GameManager.MIN_PLAYERS = 5
+GameManager.MAX_PLAYERS = 5
+
 -- Game Data
 GameManager.CurrentState = GameManager.GameState.PreGame
 GameManager.Players = {} -- { [player] = "Survivor" or "Killer" }
 GameManager.GeneratorsLeft = 5
 
 --[[
-    Starts the game.
+    Assigns roles to the players in the game.
+    One player is randomly chosen as the Killer from the provided list.
 ]]
-function GameManager:StartGame()
-    if self.CurrentState == self.GameState.PreGame then
+function GameManager:AssignRoles(playerList)
+    self.Players = {}
+
+    -- Select a random killer
+    local killerIndex = math.random(1, #playerList)
+    local killerPlayer = playerList[killerIndex]
+    self.Players[killerPlayer] = "Killer"
+    print(killerPlayer.Name .. " has been chosen as the Killer!")
+
+    -- Assign the rest as survivors
+    for i, player in ipairs(playerList) do
+        if i ~= killerIndex then
+            self.Players[player] = "Survivor"
+            print(player.Name .. " is a Survivor.")
+        end
+    end
+end
+
+--[[
+    Starts the game with a given set of players.
+]]
+function GameManager:StartGame(players)
+    if self.CurrentState == self.GameState.PreGame and #players >= self.MIN_PLAYERS then
+        print("Starting game with " .. #players .. " players...")
+        self:AssignRoles(players)
         self.CurrentState = self.GameState.InGame
         print("The game has started!")
         -- More logic to come here (e.g., teleporting players)
+    else
+        warn("GameManager:StartGame - Could not start game. State: " .. self.CurrentState .. ", Players: " .. #players)
     end
 end
 
@@ -38,22 +68,6 @@ function GameManager:EndGame(winner)
         self.CurrentState = self.GameState.PostGame
         print(winner .. " wins!")
         -- More logic to come here (e.g., showing end-game screen)
-    end
-end
-
---[[
-    Assigns a role to a player.
-]]
-function GameManager:SelectRole(player, role)
-    if self.CurrentState == self.GameState.PreGame then
-        if role == "Survivor" or role == "Killer" then
-            self.Players[player] = role
-            print(player.Name .. " has selected the role of " .. role)
-        else
-            warn("Invalid role selected: " .. tostring(role))
-        end
-    else
-        warn("Cannot select a role while the game is in progress.")
     end
 end
 
