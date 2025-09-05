@@ -2,7 +2,8 @@
     MapBuilder.server.lua
 
     This script programmatically generates the entire map layout at runtime.
-    This approach is used to avoid issues with Rojo model file syncing.
+    This version uses explicit property tables for each part to avoid any
+    potential bugs related to table reuse.
 ]]
 
 local Workspace = game:GetService("Workspace")
@@ -58,25 +59,35 @@ local walls = Instance.new("Folder")
 walls.Name = "Walls"
 walls.Parent = map
 
-local wallProperties = {
+createPart("Wall1", walls, {
     Anchored = true,
     Color = Color3.fromRGB(128, 128, 128),
     Material = Enum.Material.Concrete,
     TopSurface = Enum.SurfaceType.Smooth,
-    BottomSurface = Enum.SurfaceType.Smooth
-}
+    BottomSurface = Enum.SurfaceType.Smooth,
+    Size = Vector3.new(100, 20, 4),
+    Position = Vector3.new(0, 10, 50)
+})
 
-wallProperties.Size = Vector3.new(100, 20, 4)
-wallProperties.Position = Vector3.new(0, 10, 50)
-createPart("Wall1", walls, wallProperties)
+createPart("Wall2", walls, {
+    Anchored = true,
+    Color = Color3.fromRGB(128, 128, 128),
+    Material = Enum.Material.Concrete,
+    TopSurface = Enum.SurfaceType.Smooth,
+    BottomSurface = Enum.SurfaceType.Smooth,
+    Size = Vector3.new(4, 20, 50),
+    Position = Vector3.new(-50, 10, 0)
+})
 
-wallProperties.Size = Vector3.new(4, 20, 50)
-wallProperties.Position = Vector3.new(-50, 10, 0)
-createPart("Wall2", walls, wallProperties)
-
-wallProperties.Size = Vector3.new(4, 20, 50)
-wallProperties.Position = Vector3.new(50, 10, 0)
-createPart("Wall3", walls, wallProperties)
+createPart("Wall3", walls, {
+    Anchored = true,
+    Color = Color3.fromRGB(128, 128, 128),
+    Material = Enum.Material.Concrete,
+    TopSurface = Enum.SurfaceType.Smooth,
+    BottomSurface = Enum.SurfaceType.Smooth,
+    Size = Vector3.new(4, 20, 50),
+    Position = Vector3.new(50, 10, 0)
+})
 
 -- =============================================================================
 -- Create Vaultable Window
@@ -85,23 +96,35 @@ local windowModel = Instance.new("Model")
 windowModel.Name = "WindowVault1"
 windowModel.Parent = interactables
 
-local windowPartProps = {
+createPart("WallLeft", windowModel, {
     Anchored = true,
     Color = Color3.fromRGB(128, 128, 128),
     Material = Enum.Material.Concrete,
     TopSurface = Enum.SurfaceType.Smooth,
-    BottomSurface = Enum.SurfaceType.Smooth
-}
-windowPartProps.Size = Vector3.new(5, 20, 2)
-windowPartProps.Position = Vector3.new(-45.5, 10, 80)
-createPart("WallLeft", windowModel, windowPartProps)
+    BottomSurface = Enum.SurfaceType.Smooth,
+    Size = Vector3.new(5, 20, 2),
+    Position = Vector3.new(-45.5, 10, 80)
+})
 
-windowPartProps.Position = Vector3.new(-34.5, 10, 80)
-createPart("WallRight", windowModel, windowPartProps)
+createPart("WallRight", windowModel, {
+    Anchored = true,
+    Color = Color3.fromRGB(128, 128, 128),
+    Material = Enum.Material.Concrete,
+    TopSurface = Enum.SurfaceType.Smooth,
+    BottomSurface = Enum.SurfaceType.Smooth,
+    Size = Vector3.new(5, 20, 2),
+    Position = Vector3.new(-34.5, 10, 80)
+})
 
-windowPartProps.Size = Vector3.new(6, 4, 2)
-windowPartProps.Position = Vector3.new(-40, 18, 80)
-createPart("WallTop", windowModel, windowPartProps)
+createPart("WallTop", windowModel, {
+    Anchored = true,
+    Color = Color3.fromRGB(128, 128, 128),
+    Material = Enum.Material.Concrete,
+    TopSurface = Enum.SurfaceType.Smooth,
+    BottomSurface = Enum.SurfaceType.Smooth,
+    Size = Vector3.new(6, 4, 2),
+    Position = Vector3.new(-40, 18, 80)
+})
 
 -- =============================================================================
 -- Create Droppable Pallet
@@ -110,20 +133,27 @@ local palletModel = Instance.new("Model")
 palletModel.Name = "Pallet1"
 palletModel.Parent = interactables
 
-local postProps = {
+createPart("PostLeft", palletModel, {
     Anchored = true,
     Color = Color3.fromRGB(153, 102, 51),
     Material = Enum.Material.Wood,
     Shape = Enum.PartType.Cylinder,
     Size = Vector3.new(2, 10, 2),
     TopSurface = Enum.SurfaceType.Smooth,
-    BottomSurface = Enum.SurfaceType.Smooth
-}
-postProps.Position = Vector3.new(-36, 5, 0)
-createPart("PostLeft", palletModel, postProps)
+    BottomSurface = Enum.SurfaceType.Smooth,
+    Position = Vector3.new(-36, 5, 0)
+})
 
-postProps.Position = Vector3.new(-24, 5, 0)
-createPart("PostRight", palletModel, postProps)
+createPart("PostRight", palletModel, {
+    Anchored = true,
+    Color = Color3.fromRGB(153, 102, 51),
+    Material = Enum.Material.Wood,
+    Shape = Enum.PartType.Cylinder,
+    Size = Vector3.new(2, 10, 2),
+    TopSurface = Enum.SurfaceType.Smooth,
+    BottomSurface = Enum.SurfaceType.Smooth,
+    Position = Vector3.new(-24, 5, 0)
+})
 
 createPart("Pallet", palletModel, {
     Anchored = true, -- Start anchored, will be unanchored by script
@@ -148,4 +178,4 @@ for i = 1, 5 do
     spawn.Transparency = 0.5
 end
 
-print("MapBuilder.server.lua: Map generation complete.")
+print("MapBuilder.server.lua: Map generation complete (v2).")
