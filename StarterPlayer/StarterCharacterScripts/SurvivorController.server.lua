@@ -86,6 +86,7 @@ damageEvent.Name = "DamageEvent"
 damageEvent.Parent = character
 
 damageEvent.Event:Connect(function()
+    print("DEBUG: DamageEvent fired for " .. player.Name)
     local currentState = healthState.Value
 
     if currentState == "Healthy" then
@@ -97,3 +98,5 @@ damageEvent.Event:Connect(function()
         print(player.Name .. " is already downed.")
     end
 end)
+
+print("DEBUG: DamageEvent connection set up for " .. player.Name)
