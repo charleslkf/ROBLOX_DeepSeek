@@ -81,12 +81,14 @@ print("SurvivorController: Health system initialized for " .. player.Name)
 -- Damage Handling
 -- =============================================================================
 
-local damageEvent = Instance.new("BindableEvent")
+local damageEvent = Instance.new("RemoteEvent")
 damageEvent.Name = "DamageEvent"
 damageEvent.Parent = character
 
-damageEvent.Event:Connect(function()
-    print("DEBUG: DamageEvent fired for " .. player.Name)
+-- OnServerEvent is used for client-to-server communication.
+-- The 'firingPlayer' is automatically the player who fired the event from their client.
+damageEvent.OnServerEvent:Connect(function(firingPlayer)
+    print("DEBUG: DamageEvent received for " .. player.Name .. " (fired by " .. firingPlayer.Name .. ")")
     local currentState = healthState.Value
 
     if currentState == "Healthy" then
