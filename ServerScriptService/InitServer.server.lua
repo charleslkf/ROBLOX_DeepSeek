@@ -115,3 +115,12 @@ interactionEvent.OnServerEvent:Connect(function(player, interactableObject)
     -- Tell the client to start the skill check minigame
     startSkillCheckEvent:FireClient(player)
 end)
+
+local skillCheckResultEvent = EventsFolder:WaitForChild("SkillCheckResultEvent")
+skillCheckResultEvent.OnServerEvent:Connect(function(player, isSuccess)
+    print("Received skill check result from " .. player.Name .. ": " .. tostring(isSuccess))
+    -- TODO: Handle generator progress based on result
+
+    -- For now, assume the interaction is over after one skill check.
+    repairingPlayers[player] = nil
+end)
