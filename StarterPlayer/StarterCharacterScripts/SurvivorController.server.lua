@@ -39,7 +39,7 @@ local DEFAULT_WALKSPEED = humanoid.WalkSpeed -- Store the default speed
 -- Define health states and their corresponding walk speeds
 local healthStateSpeeds = {
     Healthy = DEFAULT_WALKSPEED,
-    Injured = DEFAULT_WALKSPEED * 0.9, -- 10% slower
+    Injured = DEFAULT_WALKSPEED * 0.5, -- 50% slower
     Downed = 0
 }
 
