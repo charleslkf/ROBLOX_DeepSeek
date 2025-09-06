@@ -24,6 +24,14 @@ local interactionEvent = EventsFolder:WaitForChild("InteractionEvent")
 -- Configuration
 local INTERACTION_DISTANCE = 10
 local closestInteractable = nil
+local isInteracting = false
+
+-- Get StopInteractionEvent
+local stopInteractionEvent = EventsFolder:WaitForChild("StopInteractionEvent")
+stopInteractionEvent.OnClientEvent:Connect(function()
+    print("InteractionController: Received StopInteraction event from server.")
+    isInteracting = false
+end)
 
 -- Create Interaction UI
 local interactionGui = Instance.new("ScreenGui")
@@ -51,6 +59,8 @@ print("InteractionController initialized for " .. localPlayer.Name)
 
 -- Proximity Detection Loop
 RunService.Heartbeat:Connect(function(deltaTime)
+    -- Don't check for new interactables if we are already busy
+    if isInteracting then return end
     local closestDistance = INTERACTION_DISTANCE
     local target = nil
 
@@ -90,9 +100,11 @@ UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
     if gameProcessedEvent then return end
 
     if input.KeyCode == Enum.KeyCode.E then
-        -- Check if we are close to an interactable object
-        if closestInteractable then
-            print("Player pressed E near " .. closestInteractable.Name .. ". Firing event to server.")
+        -- Check if we are close to an interactable object and not already busy
+        if closestInteractable and not isInteracting then
+            print("Player pressed E near " .. closestInteractable.Name .. ". Starting interaction.")
+            isInteracting = true
+            interactionLabel.Visible = false -- Hide the prompt
             interactionEvent:FireServer(closestInteractable)
         end
     end

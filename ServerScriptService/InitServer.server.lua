@@ -92,6 +92,7 @@ print("Server initialization complete. Waiting for players to ready up.")
 local CollectionService = game:GetService("CollectionService")
 local interactionEvent = EventsFolder:WaitForChild("InteractionEvent")
 local startSkillCheckEvent = EventsFolder:WaitForChild("StartSkillCheckEvent")
+local stopInteractionEvent = EventsFolder:WaitForChild("StopInteractionEvent")
 local repairingPlayers = {}
 
 interactionEvent.OnServerEvent:Connect(function(player, interactableObject)
@@ -123,4 +124,7 @@ skillCheckResultEvent.OnServerEvent:Connect(function(player, isSuccess)
 
     -- For now, assume the interaction is over after one skill check.
     repairingPlayers[player] = nil
+
+    -- Tell the client they are no longer interacting
+    stopInteractionEvent:FireClient(player)
 end)

@@ -2,7 +2,8 @@
     SkillCheckController.client.lua
 
     This script runs on the client and manages the entire skill check minigame,
-    including its UI and logic.
+    including its UI and logic. This version uses Frames instead of Images
+    to be more reliable.
 ]]
 
 local Players = game:GetService("Players")
@@ -14,7 +15,7 @@ local localPlayer = Players.LocalPlayer
 local playerGui = localPlayer:WaitForChild("PlayerGui")
 
 -- =============================================================================
--- Create Skill Check UI
+-- Create Skill Check UI (Asset-Free)
 -- =============================================================================
 local skillCheckGui = Instance.new("ScreenGui")
 skillCheckGui.Name = "SkillCheckGui"
@@ -29,39 +30,46 @@ mainFrame.Position = UDim2.new(0.5, -100, 0.5, -100)
 mainFrame.BackgroundTransparency = 1
 mainFrame.Parent = skillCheckGui
 
--- NOTE: These are placeholder asset IDs. They would need to be replaced with
--- actual image assets uploaded to Roblox.
-local CIRCLE_IMAGE = "rbxassetid://0" -- Placeholder for a white circle image
-local WEDGE_IMAGE = "rbxassetid://0"  -- Placeholder for a wedge/slice image
-
-local circleBg = Instance.new("ImageLabel")
+-- Create a circular background using a frame and UICorner
+local circleBg = Instance.new("Frame")
 circleBg.Name = "CircleBackground"
-circleBg.Image = CIRCLE_IMAGE
-circleBg.ImageColor3 = Color3.fromRGB(0, 0, 0)
-circleBg.ImageTransparency = 0.5
+circleBg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+circleBg.BackgroundTransparency = 0.5
 circleBg.Size = UDim2.new(1, 0, 1, 0)
-circleBg.BackgroundTransparency = 1
+circleBg.BorderSizePixel = 0
 circleBg.Parent = mainFrame
+local circleCorner = Instance.new("UICorner")
+circleCorner.CornerRadius = UDim.new(1, 0)
+circleCorner.Parent = circleBg
 
-local successZone = Instance.new("ImageLabel")
+-- Create the success zone using a clipping frame and a rotated inner frame
+local successZoneContainer = Instance.new("Frame")
+successZoneContainer.Name = "SuccessZoneContainer"
+successZoneContainer.Size = UDim2.new(1, 0, 1, 0)
+successZoneContainer.BackgroundTransparency = 1
+successZoneContainer.ClipsDescendants = true
+successZoneContainer.Parent = circleBg
+
+local successZone = Instance.new("Frame")
 successZone.Name = "SuccessZone"
-successZone.Image = WEDGE_IMAGE
-successZone.ImageColor3 = Color3.fromRGB(255, 255, 255)
-successZone.Size = UDim2.new(1, 0, 1, 0)
-successZone.BackgroundTransparency = 1
-successZone.Rotation = 45 -- Example position
-successZone.Parent = mainFrame
+successZone.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+successZone.BorderSizePixel = 0
+successZone.Size = UDim2.new(1, 0, 0.5, 0) -- Covers half the circle
+successZone.Position = UDim2.new(0, 0, 0.5, 0)
+successZone.AnchorPoint = Vector2.new(0, 1) -- Rotate from bottom-left
+successZone.Parent = successZoneContainer
 
+-- Create the needle
 local needle = Instance.new("Frame")
 needle.Name = "Needle"
-needle.Size = UDim2.new(0.05, 0, 0.4, 0)
-needle.Position = UDim2.new(0.5, -needle.Size.X.Offset / 2, 0.1, 0)
+needle.Size = UDim2.new(0.05, 0, 0.5, 0)
+needle.Position = UDim2.new(0.5, 0, 0.5, 0)
 needle.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 needle.BorderSizePixel = 0
 needle.AnchorPoint = Vector2.new(0.5, 1) -- Set anchor to bottom-center for rotation
 needle.Parent = mainFrame
 
-print("SkillCheckController: UI created and ready.")
+print("SkillCheckController: Asset-free UI created and ready.")
 
 -- =============================================================================
 -- Minigame Logic
@@ -71,15 +79,15 @@ local startSkillCheckEvent = EventsFolder:WaitForChild("StartSkillCheckEvent")
 local skillCheckResultEvent = EventsFolder:WaitForChild("SkillCheckResultEvent")
 
 local isSkillCheckActive = false
+local SUCCESS_ZONE_DEGREES = 45 -- The size of the success zone in degrees
 
 local function runSkillCheck()
     if isSkillCheckActive then return end
     isSkillCheckActive = true
 
-    -- Randomize success zone position and size
-    successZone.Rotation = math.random(0, 330)
-    -- Placeholder for variable size, using a fixed size for now
-    -- successZone.Size = UDim2.new(1, 0, 1, 0) -- This depends on the wedge image used
+    -- Randomize success zone position
+    local randomRotation = math.random(0, 360 - SUCCESS_ZONE_DEGREES)
+    successZoneContainer.Rotation = randomRotation
 
     -- Make UI visible
     skillCheckGui.Enabled = true
@@ -92,19 +100,18 @@ local function runSkillCheck()
         needle.Rotation = (needle.Rotation + rotationSpeed * deltaTime) % 360
     end)
 
-    -- Listen for spacebar press
+    -- Listen for input
     local inputConnection = nil
     inputConnection = UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
         if gameProcessedEvent then return end
 
-        -- Using E key for now to avoid conflict with jumping
         if input.KeyCode == Enum.KeyCode.E then
             heartbeatConnection:Disconnect()
             inputConnection:Disconnect()
 
             -- Check for success
-            local successZoneStart = successZone.Rotation
-            local successZoneEnd = successZoneStart + 30 -- Assuming a 30 degree wedge for the image
+            local successZoneStart = randomRotation
+            local successZoneEnd = successZoneStart + SUCCESS_ZONE_DEGREES
             local isSuccess = (needle.Rotation >= successZoneStart and needle.Rotation <= successZoneEnd)
 
             if isSuccess then
