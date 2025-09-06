@@ -25,7 +25,6 @@ local canAttack = true
 local isKiller = false
 
 -- Sound
-local ATTACK_SOUND_ID = "rbxassetid://17733314210"
 
 -- Role-based activation
 local roleValue = character:WaitForChild("Role")
@@ -48,18 +47,14 @@ UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
     if input.UserInputType == Enum.UserInputType.MouseButton1 and canAttack then
         canAttack = false
 
-        -- Play local sound effect
-        local sound = Instance.new("Sound")
-        sound.SoundId = ATTACK_SOUND_ID
-        sound.Parent = head
-        sound:Play()
-        game.Debris:AddItem(sound, 1)
 
         -- Fire event to server
+        print("Client: Firing KillerAttackEvent to server.")
         killerAttackEvent:FireServer()
 
         -- Cooldown
         wait(attackCooldown)
         canAttack = true
+        print("Client: Cooldown finished. Can attack again.")
     end
 end)
