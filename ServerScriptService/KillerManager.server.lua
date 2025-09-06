@@ -58,7 +58,10 @@ killerAttackEvent.OnServerEvent:Connect(function(eventPlayer)
                 -- Fire the survivor's damage event
                 local damageEvent = hitCharacter:FindFirstChild("DamageEvent")
                 if damageEvent then
+                    print("KillerManager: Found DamageEvent on " .. hitPlayer.Name .. ". Firing.")
                     damageEvent:Fire() -- Fire the BindableEvent
+                else
+                    warn("KillerManager: CRITICAL - Could not find DamageEvent on survivor " .. hitPlayer.Name)
                 end
 
                 -- Play a server-wide hit sound
