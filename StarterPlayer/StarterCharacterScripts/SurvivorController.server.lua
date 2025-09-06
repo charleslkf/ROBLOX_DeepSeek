@@ -6,11 +6,7 @@
     core mechanics.
 ]]
 
-local ServerScriptService = game:GetService("ServerScriptService")
 local Players = game:GetService("Players")
-
--- Get the GameManager module
-local GameManager = require(ServerScriptService.GameManager)
 
 -- Get the character and player this script belongs to
 local character = script.Parent
@@ -21,21 +17,11 @@ if not player then
     return
 end
 
--- =============================================================================
--- This is a placeholder check. In a running game, the GameManager.Players
--- table would be populated. For now, we need a way to ensure this runs.
--- A better method would be to have GameManager tag players.
--- For now, we'll assume if the role is not "Killer", it's a survivor.
--- =============================================================================
--- Loop until the game starts and a role is assigned.
-while GameManager.CurrentState == GameManager.GameState.PreGame do
-    wait(1)
-end
+-- Wait for the server to assign a role to this character
+local roleValue = character:WaitForChild("Role", 15) -- Wait up to 15 seconds
 
-local role = GameManager.Players[player]
-if role ~= "Survivor" then
-    -- If this character does not belong to a Survivor, do nothing.
-    print("SurvivorController: " .. player.Name .. " is not a Survivor (" .. tostring(role) .. "). Destroying script.")
+-- If no role is assigned or the role is not Survivor, destroy this script.
+if not roleValue or roleValue.Value ~= "Survivor" then
     script:Destroy()
     return
 end
@@ -81,13 +67,12 @@ print("SurvivorController: Health system initialized for " .. player.Name)
 -- Damage Handling
 -- =============================================================================
 
-local damageEvent = Instance.new("RemoteEvent")
+local damageEvent = Instance.new("BindableEvent")
 damageEvent.Name = "DamageEvent"
 damageEvent.Parent = character
 
--- OnServerEvent is used for client-to-server communication.
--- The 'firingPlayer' is automatically the player who fired the event from their client.
-damageEvent.OnServerEvent:Connect(function(firingPlayer)
+-- This event is fired by other server scripts (e.g., KillerController)
+damageEvent.Event:Connect(function()
     local currentState = healthState.Value
 
     if currentState == "Healthy" then

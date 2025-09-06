@@ -30,16 +30,33 @@ GameManager.GeneratorsLeft = 5
 function GameManager:AssignRoles(playerList)
     self.Players = {}
 
+    -- Helper function to tag a character with their role
+    local function tagCharacter(player, role)
+        local character = player.Character
+        if character then
+            -- Remove old tag if it exists
+            local oldTag = character:FindFirstChild("Role")
+            if oldTag then oldTag:Destroy() end
+
+            local roleValue = Instance.new("StringValue")
+            roleValue.Name = "Role"
+            roleValue.Value = role
+            roleValue.Parent = character
+        end
+    end
+
     -- Select a random killer
     local killerIndex = math.random(1, #playerList)
     local killerPlayer = playerList[killerIndex]
     self.Players[killerPlayer] = "Killer"
+    tagCharacter(killerPlayer, "Killer")
     print(killerPlayer.Name .. " has been chosen as the Killer!")
 
     -- Assign the rest as survivors
     for i, player in ipairs(playerList) do
         if i ~= killerIndex then
             self.Players[player] = "Survivor"
+            tagCharacter(player, "Survivor")
             print(player.Name .. " is a Survivor.")
         end
     end
