@@ -89,13 +89,29 @@ print("Server initialization complete. Waiting for players to ready up.")
 -- =============================================================================
 -- Handle Player Interactions
 -- =============================================================================
+local CollectionService = game:GetService("CollectionService")
 local interactionEvent = EventsFolder:WaitForChild("InteractionEvent")
+local startSkillCheckEvent = EventsFolder:WaitForChild("StartSkillCheckEvent")
+local repairingPlayers = {}
 
 interactionEvent.OnServerEvent:Connect(function(player, interactableObject)
-    if interactableObject and interactableObject.Parent then
-        print("Received interaction request from " .. player.Name .. " for object " .. interactableObject.Name)
-        -- Later, this will trigger a channeled action or minigame.
-    else
+    if not (interactableObject and interactableObject.Parent) then
         warn("Interaction request received from " .. player.Name .. " for a missing object.")
+        return
     end
+
+    -- For now, we only handle generators
+    if not CollectionService:HasTag(interactableObject, "Generator") then return end
+
+    -- Check if player is already repairing something
+    if repairingPlayers[player] then
+        print(player.Name .. " is already repairing.")
+        return
+    end
+
+    print(player.Name .. " started repairing " .. interactableObject.Name)
+    repairingPlayers[player] = interactableObject
+
+    -- Tell the client to start the skill check minigame
+    startSkillCheckEvent:FireClient(player)
 end)
