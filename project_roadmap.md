@@ -12,13 +12,13 @@ The immediate goal is to build a complete and balanced 1-Killer-vs-4-Survivors g
 - [x] Initial project and Rojo setup.
 - [x] Basic `GameManager` and lobby system.
 
-### Task 2: Refactor for Core MVP (In Progress)
-- [ ] **Player Management:** Refactor `GameManager` for 1v4 matches with random Killer selection. Remove multi-role selection GUI and logic.
-- [ ] **Map Layout:** Create a simple map with a baseplate, walls, and spawn locations for a 1v4 match. (Partially complete). Add vaultable windows and pallets.
-- [ ] **Interaction System:** Ensure interaction controllers are simplified for a single "Skill Check" machine type.
+### Task 2: Refactor for Core MVP (Completed)
+- [x] **Player Management:** Refactor `GameManager` for 1v4 matches with random Killer selection. Remove multi-role selection GUI and logic.
+- [x] **Map Layout:** Create a simple map with a baseplate, walls, and spawn locations for a 1v4 match. (Partially complete). Add vaultable windows and pallets.
+- [x] **Interaction System:** Ensure interaction controllers are simplified for a single "Skill Check" machine type.
 
 ### Task 3: Survivor Mechanics
-- [ ] Implement `SurvivorController` for movement (walk, run, crouch) and health states (Healthy, Injured, Downed).
+- [x] Implement `SurvivorController` for movement (walk, run, crouch) and health states (Healthy, Injured, Downed).
 - [ ] Implement interactions for repairing generators (with skill checks) and escaping.
 
 ### Task 4: Killer Mechanics
