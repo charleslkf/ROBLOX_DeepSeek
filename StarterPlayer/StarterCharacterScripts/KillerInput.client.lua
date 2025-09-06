@@ -10,8 +10,6 @@ local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-script.Disabled = true -- Start disabled
-
 -- Get local player and character
 local localPlayer = Players.LocalPlayer
 local character = script.Parent
@@ -24,16 +22,28 @@ local killerAttackEvent = EventsFolder:WaitForChild("KillerAttackEvent")
 -- State
 local attackCooldown = 1 -- seconds
 local canAttack = true
+local isKiller = false
 
 -- Sound
-local ATTACK_SOUND_ID = "rbxassetid://122226379"
+local ATTACK_SOUND_ID = "rbxassetid://17733314210"
 
-print("KillerInput.client.lua: Script created and waiting to be enabled.")
+-- Role-based activation
+local roleValue = character:WaitForChild("Role")
+
+local function updateRole()
+    isKiller = (roleValue.Value == "Killer")
+    print("KillerInput.client.lua: Role is now " .. roleValue.Value .. ". IsKiller set to: " .. tostring(isKiller))
+end
+
+updateRole() -- Initial check
+roleValue.Changed:Connect(updateRole)
+
+
+print("KillerInput.client.lua: Script loaded and running. Waiting for role assignment.")
 
 -- Listen for input
 UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-    -- The script's Disabled property will prevent this from running until enabled
-    if gameProcessedEvent then return end
+    if not isKiller or gameProcessedEvent then return end
 
     if input.UserInputType == Enum.UserInputType.MouseButton1 and canAttack then
         canAttack = false
