@@ -85,3 +85,17 @@ Players.PlayerRemoving:Connect(function(player)
 end)
 
 print("Server initialization complete. Waiting for players to ready up.")
+
+-- =============================================================================
+-- Handle Player Interactions
+-- =============================================================================
+local interactionEvent = EventsFolder:WaitForChild("InteractionEvent")
+
+interactionEvent.OnServerEvent:Connect(function(player, interactableObject)
+    if interactableObject and interactableObject.Parent then
+        print("Received interaction request from " .. player.Name .. " for object " .. interactableObject.Name)
+        -- Later, this will trigger a channeled action or minigame.
+    else
+        warn("Interaction request received from " .. player.Name .. " for a missing object.")
+    end
+end)

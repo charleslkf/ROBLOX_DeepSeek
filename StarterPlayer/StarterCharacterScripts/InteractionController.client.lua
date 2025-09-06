@@ -13,13 +13,19 @@ local localPlayer = Players.LocalPlayer
 local character = script.Parent
 
 local CollectionService = game:GetService("CollectionService")
+local UserInputService = game:GetService("UserInputService")
 local characterRoot = character:WaitForChild("HumanoidRootPart")
+local playerGui = localPlayer:WaitForChild("PlayerGui")
 
+-- Get RemoteEvent
+local EventsFolder = game:GetService("ReplicatedStorage"):WaitForChild("Events")
+local interactionEvent = EventsFolder:WaitForChild("InteractionEvent")
+
+-- Configuration
 local INTERACTION_DISTANCE = 10
 local closestInteractable = nil
 
 -- Create Interaction UI
-local playerGui = localPlayer:WaitForChild("PlayerGui")
 local interactionGui = Instance.new("ScreenGui")
 interactionGui.Name = "InteractionGui"
 interactionGui.ResetOnSpawn = false
@@ -38,6 +44,10 @@ interactionLabel.Visible = false
 interactionLabel.Parent = interactionGui
 
 print("InteractionController initialized for " .. localPlayer.Name)
+
+-- =============================================================================
+-- Services and Logic
+-- =============================================================================
 
 -- Proximity Detection Loop
 RunService.Heartbeat:Connect(function(deltaTime)
@@ -70,6 +80,20 @@ RunService.Heartbeat:Connect(function(deltaTime)
         else
             -- No target in range, hide UI
             interactionLabel.Visible = false
+        end
+    end
+end)
+
+-- Input Handling
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    -- Ignore input if typing in a textbox, etc.
+    if gameProcessedEvent then return end
+
+    if input.KeyCode == Enum.KeyCode.E then
+        -- Check if we are close to an interactable object
+        if closestInteractable then
+            print("Player pressed E near " .. closestInteractable.Name .. ". Firing event to server.")
+            interactionEvent:FireServer(closestInteractable)
         end
     end
 end)
