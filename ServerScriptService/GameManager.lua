@@ -69,6 +69,14 @@ function GameManager:AssignRoles(playerList)
             self.Players[player] = "Survivor"
             tagCharacter(player, "Survivor")
             print(player.Name .. " is a Survivor.")
+
+            -- Create a DamageEvent for the survivor
+            local character = player.Character
+            if character then
+                local damageEvent = Instance.new("BindableEvent")
+                damageEvent.Name = "DamageEvent"
+                damageEvent.Parent = character
+            end
         end
     end
 end

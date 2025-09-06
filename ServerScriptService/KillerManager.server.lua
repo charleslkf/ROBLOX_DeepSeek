@@ -18,7 +18,7 @@ local killerAttackEvent = EventsFolder:WaitForChild("KillerAttackEvent")
 
 -- Constants for the attack
 local ATTACK_RANGE = 8 -- studs
-local HIT_SOUND_ID = "rbxassetid://130632152" -- A concrete hit sound
+local HIT_SOUND_ID = "rbxassetid://17733314210" -- Placeholder, using attack swoosh sound
 
 -- Listen for a killer attacking
 killerAttackEvent.OnServerEvent:Connect(function(eventPlayer)

@@ -67,9 +67,8 @@ print("SurvivorController: Health system initialized for " .. player.Name)
 -- Damage Handling
 -- =============================================================================
 
-local damageEvent = Instance.new("BindableEvent")
-damageEvent.Name = "DamageEvent"
-damageEvent.Parent = character
+-- The DamageEvent is now created by the GameManager. We just need to find it.
+local damageEvent = character:WaitForChild("DamageEvent")
 
 -- This event is fired by other server scripts (e.g., KillerController)
 damageEvent.Event:Connect(function()
