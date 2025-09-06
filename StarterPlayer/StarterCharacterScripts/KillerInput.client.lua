@@ -1,44 +1,38 @@
 --[[
     KillerInput.client.lua
 
-    This script runs on the client for the Killer's character.
-    It is responsible for handling the Killer's input, such as attacking.
+    This script handles the Killer's attack input.
+    It starts as DISABLED and is enabled by the server's GameManager
+    only for the player who is chosen as the Killer.
 ]]
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+script.Disabled = true -- Start disabled
+
 -- Get local player and character
 local localPlayer = Players.LocalPlayer
 local character = script.Parent
+local head = character:WaitForChild("Head")
 
--- =============================================================================
--- Role Check
--- =============================================================================
--- Wait for the server to assign a role to this character
-local roleValue = character:WaitForChild("Role", 15)
-
--- If no role is assigned or the role is not Killer, destroy this script.
-if not roleValue or roleValue.Value ~= "Killer" then
-    script:Destroy()
-    return
-end
-
-print("KillerInput.client.lua: Initialized for Killer " .. localPlayer.Name)
-
--- =============================================================================
--- Attack Logic
--- =============================================================================
+-- Get RemoteEvent
 local EventsFolder = ReplicatedStorage:WaitForChild("Events")
 local killerAttackEvent = EventsFolder:WaitForChild("KillerAttackEvent")
+
+-- State
 local attackCooldown = 1 -- seconds
 local canAttack = true
 
--- Built-in Roblox sound ID for a sword slash
+-- Sound
 local ATTACK_SOUND_ID = "rbxassetid://122226379"
 
+print("KillerInput.client.lua: Script created and waiting to be enabled.")
+
+-- Listen for input
 UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    -- The script's Disabled property will prevent this from running until enabled
     if gameProcessedEvent then return end
 
     if input.UserInputType == Enum.UserInputType.MouseButton1 and canAttack then
@@ -47,11 +41,9 @@ UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
         -- Play local sound effect
         local sound = Instance.new("Sound")
         sound.SoundId = ATTACK_SOUND_ID
-        sound.Parent = character:WaitForChild("Head")
+        sound.Parent = head
         sound:Play()
-        game.Debris:AddItem(sound, 1) -- Clean up sound after 1 second
-
-        -- TODO: Add a simple visual effect
+        game.Debris:AddItem(sound, 1)
 
         -- Fire event to server
         killerAttackEvent:FireServer()

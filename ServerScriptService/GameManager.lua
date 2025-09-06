@@ -52,6 +52,19 @@ function GameManager:AssignRoles(playerList)
     tagCharacter(killerPlayer, "Killer")
     print(killerPlayer.Name .. " has been chosen as the Killer!")
 
+    -- Enable the Killer's input script
+    local killerCharacter = killerPlayer.Character
+    if killerCharacter then
+        -- The script name might not have the .lua extension in the explorer
+        local killerInputScript = killerCharacter:WaitForChild("KillerInput.client", 5)
+        if killerInputScript then
+            killerInputScript.Disabled = false
+            print("KillerInput script enabled for " .. killerPlayer.Name)
+        else
+            warn("Could not find KillerInput script for " .. killerPlayer.Name)
+        end
+    end
+
     -- Assign the rest as survivors
     for i, player in ipairs(playerList) do
         if i ~= killerIndex then

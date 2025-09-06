@@ -89,3 +89,55 @@ killerAttackEvent.OnServerEvent:Connect(function(eventPlayer)
         end
     end
 end)
+
+-- =============================================================================
+-- Attack Handling
+-- =============================================================================
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local EventsFolder = ReplicatedStorage:WaitForChild("Events")
+local killerAttackEvent = EventsFolder:WaitForChild("KillerAttackEvent")
+
+local ATTACK_RANGE = 8 -- studs
+local HIT_SOUND_ID = "rbxassetid://130632152" -- A concrete hit sound
+
+killerAttackEvent.OnServerEvent:Connect(function(eventPlayer)
+    -- Security check: ensure the player firing the event is the one this script controls
+    if eventPlayer ~= player then return end
+
+    local rootPart = character:WaitForChild("HumanoidRootPart")
+    local raycastParams = RaycastParams.new()
+    raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+    raycastParams.FilterDescendantsInstances = {character} -- Ignore the killer's own character
+
+    local origin = rootPart.Position
+    local direction = rootPart.CFrame.LookVector * ATTACK_RANGE
+    local result = workspace:Raycast(origin, direction, raycastParams)
+
+    if result and result.Instance then
+        local hitPart = result.Instance
+        local hitCharacter = hitPart:FindFirstAncestorWhichIsA("Model")
+
+        if hitCharacter then
+            local roleValue = hitCharacter:FindFirstChild("Role")
+
+            -- Check if we hit a survivor
+            if roleValue and roleValue.Value == "Survivor" then
+                local hitPlayer = game.Players:GetPlayerFromCharacter(hitCharacter)
+                print("Killer " .. player.Name .. " hit survivor " .. hitPlayer.Name)
+
+                -- Fire the survivor's damage event
+                local damageEvent = hitCharacter:FindFirstChild("DamageEvent")
+                if damageEvent then
+                    damageEvent:Fire() -- Fire the BindableEvent
+                end
+
+                -- Play a server-wide hit sound
+                local sound = Instance.new("Sound")
+                sound.SoundId = HIT_SOUND_ID
+                sound.Parent = hitPart
+                sound:Play()
+                game.Debris:AddItem(sound, 1)
+            end
+        end
+    end
+end)
