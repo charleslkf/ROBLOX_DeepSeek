@@ -16,7 +16,6 @@ local localPlayer = Players.LocalPlayer
 local character = script.Parent
 local head = character:WaitForChild("Head")
 
--- Get RemoteEvent
 -- Get RemoteEvents
 local EventsFolder = ReplicatedStorage:WaitForChild("Events")
 local killerAttackEvent = EventsFolder:WaitForChild("KillerAttackEvent")
@@ -33,7 +32,62 @@ local isKiller = false
 
 -- Sound
 
--- Role-based activation
+-- =============================================================================
+-- Helper Functions
+-- =============================================================================
+
+local function findNearestHook()
+    local killerRoot = character:FindFirstChild("HumanoidRootPart")
+    if not killerRoot then return nil end
+
+    local nearestHook = nil
+    local minDistance = interactionRange
+
+    local taggedHooks = CollectionService:GetTagged("SacrificialHook")
+    for _, hookModel in ipairs(taggedHooks) do
+        if hookModel:IsA("Model") and hookModel.PrimaryPart then
+            local distance = (killerRoot.Position - hookModel.PrimaryPart.Position).Magnitude
+            if distance < minDistance then
+                minDistance = distance
+                nearestHook = hookModel
+            end
+        end
+    end
+    return nearestHook
+end
+
+local function findNearestDownedSurvivor()
+    local killerRoot = character:FindFirstChild("HumanoidRootPart")
+    if not killerRoot then return nil end
+
+    local nearestSurvivor = nil
+    local minDistance = interactionRange
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= localPlayer and player.Character then
+            local survivorChar = player.Character
+            local roleVal = survivorChar:FindFirstChild("Role")
+            local humanoid = survivorChar:FindFirstChildOfClass("Humanoid")
+
+            if roleVal and roleVal.Value == "Survivor" and humanoid and humanoid.Health > 0 and humanoid.WalkSpeed == 0 then
+                local survivorRoot = survivorChar:FindFirstChild("HumanoidRootPart")
+                if survivorRoot then
+                    local distance = (killerRoot.Position - survivorRoot.Position).Magnitude
+                    if distance < minDistance then
+                        minDistance = distance
+                        nearestSurvivor = player
+                    end
+                end
+            end
+        end
+    end
+    return nearestSurvivor
+end
+
+-- =============================================================================
+-- Initialization Logic
+-- =============================================================================
+
 local inputInitialized = false
 
 local function initializeInput()
@@ -62,14 +116,12 @@ local function initializeInput()
             local isCarrying = character:FindFirstChild("IsCarrying")
 
             if isCarrying and isCarrying.Value == true then
-                -- If carrying, try to hook
                 local targetHook = findNearestHook()
                 if targetHook then
                     print("Found hook: " .. targetHook.Name .. ". Requesting hook.")
                     hookRequestEvent:FireServer(targetHook)
                 end
             else
-                -- If not carrying, try to pick up
                 local targetSurvivor = findNearestDownedSurvivor()
                 if targetSurvivor then
                     print("Found downed survivor: " .. targetSurvivor.Name .. ". Requesting carry.")
@@ -87,63 +139,11 @@ local function onRoleChanged(newRole)
     if newRole == "Killer" then
         initializeInput()
     else
-        -- If the role ever changes FROM killer, or is not killer, this script is irrelevant.
         script:Destroy()
     end
 end
 
--- Wait for the Role object to exist, then check its value and listen for changes.
+-- Main execution: Wait for the Role object, then connect to its events.
 local roleValue = character:WaitForChild("Role")
 onRoleChanged(roleValue.Value) -- Initial check
 roleValue.Changed:Connect(onRoleChanged)
-
--- Helper function to find the nearest hook
-local function findNearestHook()
-    local killerRoot = character:FindFirstChild("HumanoidRootPart")
-    if not killerRoot then return nil end
-
-    local nearestHook = nil
-    local minDistance = interactionRange
-
-    local taggedHooks = CollectionService:GetTagged("SacrificialHook")
-    for _, hookModel in ipairs(taggedHooks) do
-        if hookModel:IsA("Model") and hookModel.PrimaryPart then
-            local distance = (killerRoot.Position - hookModel.PrimaryPart.Position).Magnitude
-            if distance < minDistance then
-                minDistance = distance
-                nearestHook = hookModel
-            end
-        end
-    end
-    return nearestHook
-end
-
--- Helper function to find the nearest downed survivor
-local function findNearestDownedSurvivor()
-    local killerRoot = character:FindFirstChild("HumanoidRootPart")
-    if not killerRoot then return nil end
-
-    local nearestSurvivor = nil
-    local minDistance = interactionRange
-
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= localPlayer and player.Character then
-            local survivorChar = player.Character
-            local roleVal = survivorChar:FindFirstChild("Role")
-            local humanoid = survivorChar:FindFirstChildOfClass("Humanoid")
-
-            -- Check if the character is a downed survivor
-            if roleVal and roleVal.Value == "Survivor" and humanoid and humanoid.Health > 0 and humanoid.WalkSpeed == 0 then
-                local survivorRoot = survivorChar:FindFirstChild("HumanoidRootPart")
-                if survivorRoot then
-                    local distance = (killerRoot.Position - survivorRoot.Position).Magnitude
-                    if distance < minDistance then
-                        minDistance = distance
-                        nearestSurvivor = player
-                    end
-                end
-            end
-        end
-    end
-    return nearestSurvivor
-end

@@ -70,10 +70,13 @@ local function onRoleChanged(newRole)
         local humanoid = character:FindFirstChildOfClass("Humanoid")
         local roleValue = character:FindFirstChild("Role")
 
-        -- The controller creates its own event to be self-contained and avoid race conditions.
-        local damageEvent = Instance.new("BindableEvent")
-        damageEvent.Name = "DamageEvent"
-        damageEvent.Parent = character
+        -- Now that we know we are a survivor, wait for the DamageEvent created by the GameManager
+        local damageEvent = character:WaitForChild("DamageEvent")
+        if not damageEvent then
+            warn("SurvivorController for " .. character.Name .. " could not find DamageEvent.")
+            script:Destroy()
+            return
+        end
 
         InitializeSurvivor(player, humanoid, roleValue, damageEvent)
 
