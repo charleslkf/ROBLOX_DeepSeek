@@ -52,7 +52,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
         killerAttackEvent:FireServer()
 
         -- Cooldown
-        wait(attackCooldown)
+        task.wait(attackCooldown)
         canAttack = true
     end
 end)
