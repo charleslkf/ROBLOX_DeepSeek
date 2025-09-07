@@ -131,14 +131,20 @@ carryRequestEvent.OnServerEvent:Connect(function(killerPlayer, survivorPlayer)
     end
     carriedSurvivorVal.Value = survivorChar
 
-    -- Animate survivor
+    -- Animate survivor and make them massless to prevent killer slowdown
     survivorHumanoid:ChangeState(Enum.HumanoidStateType.PlatformStanding)
+    for _, part in ipairs(survivorChar:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.Massless = true
+        end
+    end
 
-    -- Weld the survivor to the killer
+    -- Weld the survivor to the killer's back
     local weld = Instance.new("WeldConstraint")
     weld.Name = "CarryWeld"
     weld.Part0 = killerRoot
     weld.Part1 = survivorRoot
+    weld.C1 = CFrame.new(0, -2, 1.5) * CFrame.Angles(0, math.rad(180), 0)
     weld.Parent = killerRoot
 end)
 
@@ -180,6 +186,13 @@ hookRequestEvent.OnServerEvent:Connect(function(killerPlayer, hookModel)
     -- Update killer's state
     isCarrying.Value = false
     carriedSurvivorVal.Value = nil
+
+    -- Restore survivor's mass
+    for _, part in ipairs(survivorChar:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.Massless = false
+        end
+    end
 
     -- Move survivor to the hook and weld them
     local hookPoint = hookModel:FindFirstChild("HookPoint")

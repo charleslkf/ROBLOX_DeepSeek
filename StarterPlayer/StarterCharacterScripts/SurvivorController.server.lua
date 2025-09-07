@@ -32,6 +32,12 @@ local function InitializeSurvivor(player, humanoid, roleValue, damageEvent)
         local newSpeed = healthStateSpeeds[newValue]
         if newSpeed ~= nil then
             humanoid.WalkSpeed = newSpeed
+            -- Add visual state for being downed
+            if newValue == "Downed" then
+                humanoid.PlatformStand = true
+            else
+                humanoid.PlatformStand = false
+            end
         else
             warn("Unknown health state: " .. tostring(newValue))
         end
@@ -54,40 +60,39 @@ end
 
 -- Main execution starts here.
 -- We must safely wait for all components before proceeding.
-local player = Players:GetPlayerFromCharacter(character)
-if not player then
-    -- If the player doesn't exist yet, wait for them to be added.
-    -- This can happen in rare cases.
-    local playerAddedConnection
-    playerAddedConnection = Players.PlayerAdded:Connect(function(addedPlayer)
-        if addedPlayer.Character == character then
-            player = addedPlayer
-            playerAddedConnection:Disconnect()
-        end
-    end)
-    -- Wait a reasonable amount of time for the player to be associated
-    local success, result = pcall(function()
-        while not player do
-            task.wait(0.1)
-        end
-    end)
-    if not success or not player then
-        warn("SurvivorController for " .. character.Name .. " could not find a matching Player object.")
-        return
-    end
-end
 
 -- Wait for all required instances with timeouts to prevent infinite yields.
+local player = Players:GetPlayerFromCharacter(character)
 local humanoid = character:WaitForChild("Humanoid", 20)
 local roleValue = character:WaitForChild("Role", 20)
 local damageEvent = character:WaitForChild("DamageEvent", 20)
 
--- Check if all components were found and the role is correct.
-if humanoid and roleValue and damageEvent and roleValue.Value == "Survivor" then
-    -- Everything is ready, call the main initialization function.
-    InitializeSurvivor(player, humanoid, roleValue, damageEvent)
-else
-    -- If something is missing or the role is wrong, log a warning and stop.
-    warn("SurvivorController for " .. character.Name .. " failed to initialize. Components might be missing or role is incorrect.")
+-- First, verify that all essential components exist.
+if not (player and humanoid and roleValue and damageEvent) then
+    warn("SurvivorController for " .. character.Name .. " failed to initialize: a core component (Player, Humanoid, Role, or DamageEvent) is missing.")
     script:Destroy()
+    return
 end
+
+-- Second, check the role. If it's Killer, we're done here.
+if roleValue.Value == "Killer" then
+    script:Destroy()
+    return
+end
+
+-- Third, if the role isn't "Survivor" yet, wait a moment for it to be assigned.
+-- This handles race conditions where the script runs before GameManager sets the role.
+if roleValue.Value ~= "Survivor" then
+    local success = pcall(function()
+        roleValue.Changed:Wait()
+    end)
+    -- If the wait fails or the role is still not Survivor, then exit.
+    if not success or roleValue.Value ~= "Survivor" then
+        warn("SurvivorController for " .. character.Name .. " timed out or role was not set to Survivor.")
+        script:Destroy()
+        return
+    end
+end
+
+-- If we've made it this far, the role is "Survivor" and all components are present.
+InitializeSurvivor(player, humanoid, roleValue, damageEvent)
