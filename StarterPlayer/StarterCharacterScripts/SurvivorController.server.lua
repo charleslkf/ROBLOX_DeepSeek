@@ -65,11 +65,10 @@ end
 local player = Players:GetPlayerFromCharacter(character)
 local humanoid = character:WaitForChild("Humanoid", 20)
 local roleValue = character:WaitForChild("Role", 20)
-local damageEvent = character:WaitForChild("DamageEvent", 20)
 
 -- First, verify that all essential components exist.
-if not (player and humanoid and roleValue and damageEvent) then
-    warn("SurvivorController for " .. character.Name .. " failed to initialize: a core component (Player, Humanoid, Role, or DamageEvent) is missing.")
+if not (player and humanoid and roleValue) then
+    warn("SurvivorController for " .. character.Name .. " failed to initialize: a core component (Player, Humanoid, or Role) is missing.")
     script:Destroy()
     return
 end
@@ -95,4 +94,9 @@ if roleValue.Value ~= "Survivor" then
 end
 
 -- If we've made it this far, the role is "Survivor" and all components are present.
+-- The controller creates its own event to be self-contained and avoid race conditions.
+local damageEvent = Instance.new("BindableEvent")
+damageEvent.Name = "DamageEvent"
+damageEvent.Parent = character
+
 InitializeSurvivor(player, humanoid, roleValue, damageEvent)
