@@ -22,44 +22,6 @@ local characterRoot = character:WaitForChild("HumanoidRootPart")
 local playerGui = localPlayer:WaitForChild("PlayerGui")
 
 -- =============================================================================
--- Role Check
--- =============================================================================
--- This controller should ONLY run for Survivors.
-local roleValue = character:WaitForChild("Role")
-
-local function onRoleChanged(newRole)
-    if newRole == "Killer" then
-        -- If we are the killer, this controller is not needed.
-        -- Destroy all UI elements and the script itself.
-        interactionGui:Destroy()
-        skillCheckGui:Destroy()
-        script:Destroy()
-    end
-end
-
-onRoleChanged(roleValue.Value) -- Initial check
-roleValue.Changed:Connect(onRoleChanged)
-
--- =============================================================================
--- Services and Events
--- =============================================================================
-local EventsFolder = ReplicatedStorage:WaitForChild("Events")
-local interactionEvent = EventsFolder:WaitForChild("InteractionEvent")
-local startSkillCheckEvent = EventsFolder:WaitForChild("StartSkillCheckEvent")
-local skillCheckResultEvent = EventsFolder:WaitForChild("SkillCheckResultEvent")
-local stopInteractionEvent = EventsFolder:WaitForChild("StopInteractionEvent")
-
--- =============================================================================
--- State and Configuration
--- =============================================================================
-local INTERACTION_DISTANCE = 10
-local currentInteractionTarget = nil
-local isInteracting = false
-local isSkillCheckActive = false
-local skillCheckHeartbeatConnection = nil
-local skillCheckInputConnection = nil
-
--- =============================================================================
 -- UI Creation
 -- =============================================================================
 
@@ -130,6 +92,44 @@ needle.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 needle.BorderSizePixel = 0
 needle.AnchorPoint = Vector2.new(0.5, 1)
 needle.Parent = mainFrame
+
+-- =============================================================================
+-- Role Check
+-- =============================================================================
+-- This controller should ONLY run for Survivors.
+local roleValue = character:WaitForChild("Role")
+
+local function onRoleChanged(newRole)
+    if newRole == "Killer" then
+        -- If we are the killer, this controller is not needed.
+        -- Destroy all UI elements and the script itself.
+        interactionGui:Destroy()
+        skillCheckGui:Destroy()
+        script:Destroy()
+    end
+end
+
+onRoleChanged(roleValue.Value) -- Initial check
+roleValue.Changed:Connect(onRoleChanged)
+
+-- =============================================================================
+-- Services and Events
+-- =============================================================================
+local EventsFolder = ReplicatedStorage:WaitForChild("Events")
+local interactionEvent = EventsFolder:WaitForChild("InteractionEvent")
+local startSkillCheckEvent = EventsFolder:WaitForChild("StartSkillCheckEvent")
+local skillCheckResultEvent = EventsFolder:WaitForChild("SkillCheckResultEvent")
+local stopInteractionEvent = EventsFolder:WaitForChild("StopInteractionEvent")
+
+-- =============================================================================
+-- State and Configuration
+-- =============================================================================
+local INTERACTION_DISTANCE = 10
+local currentInteractionTarget = nil
+local isInteracting = false
+local isSkillCheckActive = false
+local skillCheckHeartbeatConnection = nil
+local skillCheckInputConnection = nil
 
 -- =============================================================================
 -- Functions

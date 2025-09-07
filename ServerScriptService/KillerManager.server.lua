@@ -140,7 +140,7 @@ carryRequestEvent.OnServerEvent:Connect(function(killerPlayer, survivorPlayer)
     end
 
     -- Weld the survivor to the killer's back
-    local weld = Instance.new("WeldConstraint")
+    local weld = Instance.new("Weld")
     weld.Name = "CarryWeld"
     weld.Part0 = killerRoot
     weld.Part1 = survivorRoot
@@ -198,7 +198,7 @@ hookRequestEvent.OnServerEvent:Connect(function(killerPlayer, hookModel)
     local hookPoint = hookModel:FindFirstChild("HookPoint")
     survivorRoot.CFrame = hookPoint.CFrame
 
-    local hookWeld = Instance.new("WeldConstraint")
+    local hookWeld = Instance.new("Weld")
     hookWeld.Name = "HookWeld"
     hookWeld.Part0 = hookPoint
     hookWeld.Part1 = survivorRoot
