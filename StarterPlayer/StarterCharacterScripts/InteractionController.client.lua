@@ -22,6 +22,25 @@ local characterRoot = character:WaitForChild("HumanoidRootPart")
 local playerGui = localPlayer:WaitForChild("PlayerGui")
 
 -- =============================================================================
+-- Role Check
+-- =============================================================================
+-- This controller should ONLY run for Survivors.
+local roleValue = character:WaitForChild("Role")
+
+local function onRoleChanged(newRole)
+    if newRole == "Killer" then
+        -- If we are the killer, this controller is not needed.
+        -- Destroy all UI elements and the script itself.
+        interactionGui:Destroy()
+        skillCheckGui:Destroy()
+        script:Destroy()
+    end
+end
+
+onRoleChanged(roleValue.Value) -- Initial check
+roleValue.Changed:Connect(onRoleChanged)
+
+-- =============================================================================
 -- Services and Events
 -- =============================================================================
 local EventsFolder = ReplicatedStorage:WaitForChild("Events")
