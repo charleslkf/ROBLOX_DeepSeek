@@ -166,6 +166,57 @@ local pallet = createPart("Pallet", palletModel, {
 pallet.Position = Vector3.new(-30, 4, 0)
 
 -- =============================================================================
+-- Create Sacrificial Hooks
+-- =============================================================================
+local hooks = Instance.new("Folder")
+hooks.Name = "Hooks"
+hooks.Parent = map
+
+local hookPositions = {
+    Vector3.new(70, 0, 70),
+    Vector3.new(-70, 0, 70),
+    Vector3.new(70, 0, -70),
+    Vector3.new(-70, 0, -70)
+}
+
+for i, pos in ipairs(hookPositions) do
+    local hookModel = Instance.new("Model")
+    hookModel.Name = "SacrificialHook" .. i
+    hookModel.Parent = hooks
+    CollectionService:AddTag(hookModel, "SacrificialHook")
+
+    local post = createPart("Post", hookModel, {
+        Anchored = true,
+        Color = Color3.fromRGB(85, 93, 102),
+        Material = Enum.Material.Metal,
+        Size = Vector3.new(2, 18, 2),
+        TopSurface = Enum.SurfaceType.Smooth,
+        BottomSurface = Enum.SurfaceType.Smooth
+    })
+    post.Position = pos + Vector3.new(0, 9, 0) -- Centered on the position
+
+    local arm = createPart("Arm", hookModel, {
+        Anchored = true,
+        Color = Color3.fromRGB(85, 93, 102),
+        Material = Enum.Material.Metal,
+        Size = Vector3.new(1, 1, 5)
+    })
+    arm.Position = pos + Vector3.new(0, 16, 2.5)
+
+    local hookPoint = createPart("HookPoint", hookModel, {
+        Anchored = true,
+        CanCollide = false,
+        Size = Vector3.new(0.5, 2, 0.5),
+        Transparency = 0.7,
+        Color = Color3.fromRGB(255, 0, 0)
+    })
+    hookPoint.Position = pos + Vector3.new(0, 15, 4.75)
+
+    -- Set the model's primary part for easy CFrame manipulation if needed later
+    hookModel.PrimaryPart = post
+end
+
+-- =============================================================================
 -- Create Spawn Locations
 -- =============================================================================
 -- Player Spawns
