@@ -62,9 +62,11 @@ end
 -- We must safely wait for all components before proceeding.
 
 -- Wait for all required instances with timeouts to prevent infinite yields.
+-- Wait indefinitely for all required instances. This is safe because the
+-- GameManager will eventually create the Role value for every character.
 local player = Players:GetPlayerFromCharacter(character)
-local humanoid = character:WaitForChild("Humanoid", 20)
-local roleValue = character:WaitForChild("Role", 20)
+local humanoid = character:WaitForChild("Humanoid")
+local roleValue = character:WaitForChild("Role")
 
 -- First, verify that all essential components exist.
 if not (player and humanoid and roleValue) then
