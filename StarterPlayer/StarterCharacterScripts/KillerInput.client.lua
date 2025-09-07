@@ -49,12 +49,10 @@ UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
 
 
         -- Fire event to server
-        print("Client: Firing KillerAttackEvent to server.")
         killerAttackEvent:FireServer()
 
         -- Cooldown
         wait(attackCooldown)
         canAttack = true
-        print("Client: Cooldown finished. Can attack again.")
     end
 end)
