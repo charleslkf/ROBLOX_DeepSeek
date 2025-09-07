@@ -1,4 +1,3 @@
 {
-  "ClassName": "RemoteEvent",
-  "Name": "CarryRequestEvent"
+  "ClassName": "RemoteEvent"
 }
