@@ -59,46 +59,31 @@ local function InitializeSurvivor(player, humanoid, roleValue, damageEvent)
 end
 
 -- Main execution starts here.
--- We must safely wait for all components before proceeding.
+local initialized = false
 
--- Wait for all required instances with timeouts to prevent infinite yields.
--- Wait indefinitely for all required instances. This is safe because the
--- GameManager will eventually create the Role value for every character.
-local player = Players:GetPlayerFromCharacter(character)
-local humanoid = character:WaitForChild("Humanoid")
-local roleValue = character:WaitForChild("Role")
+local function onRoleChanged(newRole)
+    if newRole == "Survivor" and not initialized then
+        initialized = true
 
--- First, verify that all essential components exist.
-if not (player and humanoid and roleValue) then
-    warn("SurvivorController for " .. character.Name .. " failed to initialize: a core component (Player, Humanoid, or Role) is missing.")
-    script:Destroy()
-    return
-end
+        -- All components are guaranteed to exist at this point.
+        local player = Players:GetPlayerFromCharacter(character)
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        local roleValue = character:FindFirstChild("Role")
 
--- Second, check the role. If it's Killer, we're done here.
-if roleValue.Value == "Killer" then
-    script:Destroy()
-    return
-end
+        -- The controller creates its own event to be self-contained and avoid race conditions.
+        local damageEvent = Instance.new("BindableEvent")
+        damageEvent.Name = "DamageEvent"
+        damageEvent.Parent = character
 
--- Third, if the role isn't "Survivor" yet, wait a moment for it to be assigned.
--- This handles race conditions where the script runs before GameManager sets the role.
-if roleValue.Value ~= "Survivor" then
-    local success = pcall(function()
-        roleValue.Changed:Wait()
-    end)
-    -- If the wait fails or the role is still not Survivor, then exit.
-    if not success or roleValue.Value ~= "Survivor" then
-        warn("SurvivorController for " .. character.Name .. " timed out or role was not set to Survivor.")
+        InitializeSurvivor(player, humanoid, roleValue, damageEvent)
+
+    elseif newRole == "Killer" then
+        -- If the role is Killer, this script is not needed.
         script:Destroy()
-        return
     end
 end
 
--- If we've made it this far, the role is "Survivor" and all components are present.
--- The controller creates its own event to be self-contained and avoid race conditions.
-local damageEvent = Instance.new("BindableEvent")
-damageEvent.Name = "DamageEvent"
-damageEvent.Parent = character
-
-InitializeSurvivor(player, humanoid, roleValue, damageEvent)
+-- Wait indefinitely for the Role object to exist, then check its value and listen for changes.
+local roleValue = character:WaitForChild("Role")
+onRoleChanged(roleValue.Value) -- Initial check
+roleValue.Changed:Connect(onRoleChanged)
