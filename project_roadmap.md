@@ -21,9 +21,9 @@ The immediate goal is to build a complete and balanced 1-Killer-vs-4-Survivors g
 - [x] Implement `SurvivorController` for movement (walk, run, crouch) and health states (Healthy, Injured, Downed).
 - [x] Implement interactions for repairing generators (with skill checks) and escaping.
 
-### Task 4: Killer Mechanics
-- [ ] Implement `KillerController` with appropriate speed for a 1v4 match.
-- [ ] Implement melee attack, carrying, and hooking mechanics.
+### Task 4: Killer Mechanics (Completed)
+- [x] Implement `KillerController` with appropriate speed for a 1v4 match.
+- [x] Implement melee attack, carrying, and hooking mechanics.
 
 ### Task 5: Win Conditions & Gameplay Loop
 - [ ] Script `Generator` objects (5 total) to be repairable via skill checks.
