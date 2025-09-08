@@ -176,7 +176,10 @@ local hookPositions = {
     Vector3.new(70, 0, 70),
     Vector3.new(-70, 0, 70),
     Vector3.new(70, 0, -70),
-    Vector3.new(-70, 0, -70)
+    Vector3.new(-70, 0, -70),
+    -- Added per plan
+    Vector3.new(-20, 0, 0),
+    Vector3.new(20, 0, 0)
 }
 
 for i, pos in ipairs(hookPositions) do
