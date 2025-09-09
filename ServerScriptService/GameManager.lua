@@ -43,6 +43,26 @@ function GameManager:AssignRoles(playerList)
             roleValue.Value = role
             roleValue.Parent = character
             print("GameManager: Tagged " .. player.Name .. " as " .. role)
+
+            -- Enable the correct controller scripts for the assigned role
+            if role == "Killer" then
+                local killerScript = character:FindFirstChild("KillerInput", true)
+                if killerScript then
+                    killerScript.Disabled = false
+                    print("GameManager: Enabled KillerInput for " .. player.Name)
+                end
+            elseif role == "Survivor" then
+                local survivorScript = character:FindFirstChild("SurvivorController", true)
+                if survivorScript then
+                    survivorScript.Disabled = false
+                    print("GameManager: Enabled SurvivorController for " .. player.Name)
+                end
+                local interactionScript = character:FindFirstChild("InteractionController", true)
+                if interactionScript then
+                    interactionScript.Disabled = false
+                    print("GameManager: Enabled InteractionController for " .. player.Name)
+                end
+            end
         end
 
         if player.Character then

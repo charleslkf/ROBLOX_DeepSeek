@@ -1,9 +1,11 @@
+-- This script is disabled by default and enabled by the GameManager
+-- after the 'Killer' role has been assigned.
+script.Disabled = true
+
 --[[
     KillerInput.client.lua
 
     This script handles the Killer's attack input.
-    It starts as DISABLED and is enabled by the server's GameManager
-    only for the player who is chosen as the Killer.
 ]]
 
 local Players = game:GetService("Players")
@@ -28,7 +30,6 @@ local canAttack = true
 local interactionCooldown = 0.5 -- seconds
 local canInteract = true
 local interactionRange = 8 -- studs
-local isKiller = false
 
 -- Sound
 
@@ -88,70 +89,41 @@ end
 -- Initialization Logic
 -- =============================================================================
 
-local inputInitialized = false
+print("KillerInput.client.lua: Enabled and initializing input.")
 
-local function initializeInput()
-    if inputInitialized then return end
-    inputInitialized = true
-    isKiller = true -- Set the global flag
+-- Listen for input
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
 
-    print("KillerInput.client.lua: Confirmed role as Killer. Initializing input.")
-
-    -- Listen for input
-    UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-        if not isKiller or gameProcessedEvent then return end
-
-        -- Attack Input
-        if input.UserInputType == Enum.UserInputType.MouseButton1 and canAttack then
-            canAttack = false
-            killerAttackEvent:FireServer()
-            task.wait(attackCooldown)
-            canAttack = true
-        end
-
-        -- Interaction Input (Pickup or Hook)
-        if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.E and canInteract then
-            canInteract = false
-
-            local isCarrying = character:FindFirstChild("IsCarrying")
-
-            if isCarrying and isCarrying.Value == true then
-                local targetHook = findNearestHook()
-                if targetHook then
-                    print("Found hook: " .. targetHook.Name .. ". Requesting hook.")
-                    hookRequestEvent:FireServer(targetHook)
-                end
-            else
-                local targetSurvivor = findNearestDownedSurvivor()
-                if targetSurvivor then
-                    print("Found downed survivor: " .. targetSurvivor.Name .. ". Requesting carry.")
-                    carryRequestEvent:FireServer(targetSurvivor)
-                end
-            end
-
-            task.wait(interactionCooldown)
-            canInteract = true
-        end
-    end)
-end
-
-local function onRoleChanged(newRole)
-    if newRole == "Killer" then
-        initializeInput()
-    else
-        script:Destroy()
+    -- Attack Input
+    if input.UserInputType == Enum.UserInputType.MouseButton1 and canAttack then
+        canAttack = false
+        killerAttackEvent:FireServer()
+        task.wait(attackCooldown)
+        canAttack = true
     end
-end
 
--- Main execution: Wait for the Role object, then connect to its events.
--- More robust role-checking to prevent infinite yield on client.
-local roleValue = character:WaitForChild("Role", 10)
+    -- Interaction Input (Pickup or Hook)
+    if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.E and canInteract then
+        canInteract = false
 
-if roleValue then
-    onRoleChanged(roleValue.Value) -- Initial check
-    roleValue.Changed:Connect(onRoleChanged)
-else
-    -- If the Role value never appears, this script is not needed.
-    warn("KillerInput on " .. character.Name .. " could not find Role value after 10 seconds. Destroying script.")
-    script:Destroy()
-end
+        local isCarrying = character:FindFirstChild("IsCarrying")
+
+        if isCarrying and isCarrying.Value == true then
+            local targetHook = findNearestHook()
+            if targetHook then
+                print("Found hook: " .. targetHook.Name .. ". Requesting hook.")
+                hookRequestEvent:FireServer(targetHook)
+            end
+        else
+            local targetSurvivor = findNearestDownedSurvivor()
+            if targetSurvivor then
+                print("Found downed survivor: " .. targetSurvivor.Name .. ". Requesting carry.")
+                carryRequestEvent:FireServer(targetSurvivor)
+            end
+        end
+
+        task.wait(interactionCooldown)
+        canInteract = true
+    end
+end)

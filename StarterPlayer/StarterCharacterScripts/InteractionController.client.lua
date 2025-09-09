@@ -1,3 +1,7 @@
+-- This script is disabled by default and enabled by the GameManager
+-- after the 'Survivor' role has been assigned.
+script.Disabled = true
+
 --[[InteractionController.client.lua
 
     This single script manages all client-side interaction logic:
@@ -91,33 +95,6 @@ needle.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 needle.BorderSizePixel = 0
 needle.AnchorPoint = Vector2.new(0.5, 1)
 needle.Parent = mainFrame
-
--- =============================================================================
--- Role Check
--- =============================================================================
--- This controller should ONLY run for Survivors.
--- More robust role-checking to prevent infinite yield on client.
-local roleValue = character:WaitForChild("Role", 10)
-
-local function onRoleChanged(newRole)
-    if newRole == "Killer" then
-        -- If we are the killer, this controller is not needed.
-        -- Destroy all UI elements and the script itself.
-        interactionGui:Destroy()
-        skillCheckGui:Destroy()
-        script:Destroy()
-    end
-end
-
-if roleValue then
-    onRoleChanged(roleValue.Value) -- Initial check
-    roleValue.Changed:Connect(onRoleChanged)
-else
-    -- If the Role value never appears, we can't know our role.
-    -- The safe assumption is to destroy the script.
-    warn("InteractionController on " .. character.Name .. " could not find Role value after 10 seconds. Destroying script.")
-    script:Destroy()
-end
 
 -- =============================================================================
 -- Services and Events
@@ -246,4 +223,4 @@ RunService.Heartbeat:Connect(function(deltaTime)
     end
 end)
 
-print("Unified InteractionController initialized.")
+print("Unified InteractionController enabled and initialized.")
