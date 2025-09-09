@@ -86,7 +86,16 @@ local function onRoleChanged(newRole)
     end
 end
 
--- Wait indefinitely for the Role object to exist, then check its value and listen for changes.
-local roleValue = character:WaitForChild("Role")
-onRoleChanged(roleValue.Value) -- Initial check
-roleValue.Changed:Connect(onRoleChanged)
+-- More robust role-checking to prevent infinite yield.
+-- Wait a maximum of 10 seconds for the Role value to be assigned by the GameManager.
+local roleValue = character:WaitForChild("Role", 10)
+
+if roleValue then
+    onRoleChanged(roleValue.Value) -- Initial check
+    roleValue.Changed:Connect(onRoleChanged)
+else
+    -- If the Role value never appears, print a warning and self-destruct.
+    -- This can happen if a player joins but the game never starts.
+    warn("SurvivorController on " .. character.Name .. " could not find Role value after 10 seconds. Destroying script.")
+    script:Destroy()
+end
