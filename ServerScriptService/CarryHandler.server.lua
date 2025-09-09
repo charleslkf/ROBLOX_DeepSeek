@@ -5,6 +5,12 @@
     and hooking a Survivor.
 ]]
 
+-- Singleton pattern to prevent multiple executions
+if _G.CarryHandlerLoaded then
+    return
+end
+_G.CarryHandlerLoaded = true
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local CollectionService = game:GetService("CollectionService")

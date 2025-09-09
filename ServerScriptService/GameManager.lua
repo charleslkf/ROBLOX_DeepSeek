@@ -30,11 +30,11 @@ GameManager.GeneratorsLeft = 5
 function GameManager:AssignRoles(playerList)
     self.Players = {}
 
-    -- Helper function to tag a character with their role
+    -- Helper function to tag a character with their role.
+    -- This is robust against characters not being loaded yet.
     local function tagCharacter(player, role)
-        local character = player.Character
-        if character then
-            -- Remove old tag if it exists
+        local function doTagging(character)
+            -- This function does the actual work
             local oldTag = character:FindFirstChild("Role")
             if oldTag then oldTag:Destroy() end
 
@@ -42,6 +42,20 @@ function GameManager:AssignRoles(playerList)
             roleValue.Name = "Role"
             roleValue.Value = role
             roleValue.Parent = character
+            print("GameManager: Tagged " .. player.Name .. " as " .. role)
+        end
+
+        if player.Character then
+            doTagging(player.Character)
+        else
+            -- Wait for the character to be added, then tag it.
+            -- Use a one-time event connection to prevent issues on respawn.
+            local connection
+            connection = player.CharacterAdded:Connect(function(character)
+                doTagging(character)
+                -- Disconnect the event so it doesn't fire again on respawn.
+                connection:Disconnect()
+            end)
         end
     end
 
