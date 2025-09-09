@@ -15,8 +15,8 @@ GameManager.GameState = {
 }
 
 -- Constants
-GameManager.MIN_PLAYERS = 5
-GameManager.MAX_PLAYERS = 5
+GameManager.MIN_PLAYERS = 2
+GameManager.MAX_PLAYERS = 2
 
 -- Game Data
 GameManager.CurrentState = GameManager.GameState.PreGame

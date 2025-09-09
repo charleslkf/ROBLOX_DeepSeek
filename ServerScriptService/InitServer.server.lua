@@ -2,7 +2,9 @@
     InitServer.server.lua
 
     This script handles the initial server-side setup, manages the pre-game
-    lobby state, and starts the game when enough players are ready.
+    lobby state, and starts the game when enough players have joined.
+
+    MODIFIED FOR TESTING: Game starts automatically when MIN_PLAYERS join.
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -12,14 +14,10 @@ local Players = game:GetService("Players")
 -- Require the GameManager module
 local GameManager = require(ServerScriptService.GameManager)
 
--- Table to keep track of players who are ready
-local readyPlayers = {}
 local gameStarted = false
 
--- Create the RemoteEvent for player readiness
 -- Get references to the pre-defined RemoteEvents
 local EventsFolder = ReplicatedStorage:WaitForChild("Events")
-local playerReadyEvent = EventsFolder:WaitForChild("PlayerReadyEvent")
 local gameStartEvent = EventsFolder:WaitForChild("GameStartEvent")
 
 -- Function to check if the game can start
@@ -28,66 +26,40 @@ local function tryStartGame()
     if gameStarted then return end
 
     local playersInGame = Players:GetPlayers()
-    local readyCount = 0
-    for _, player in ipairs(playersInGame) do
-        if readyPlayers[player] then
-            readyCount = readyCount + 1
-        end
-    end
-
-    print(readyCount .. "/" .. GameManager.MIN_PLAYERS .. " players are ready.")
+    print(#playersInGame .. "/" .. GameManager.MIN_PLAYERS .. " players have joined.")
 
     -- If we have enough players, start the game
-    if readyCount >= GameManager.MIN_PLAYERS then
+    if #playersInGame >= GameManager.MIN_PLAYERS then
         gameStarted = true
-        print("Enough players are ready! Starting the match...")
+        print("Enough players have joined! Starting the match...")
 
-        -- We need to get the actual player objects that are ready
-        local playersForGame = {}
-        for player, _ in pairs(readyPlayers) do
-            -- Ensure player is still in the game
-            if player.Parent then
-                table.insert(playersForGame, player)
-            end
-        end
+        GameManager:StartGame(playersInGame)
 
-        -- Only start if we still have enough players after the final check
-        if #playersForGame >= GameManager.MIN_PLAYERS then
-            GameManager:StartGame(playersForGame)
-
-            -- Tell all clients to clean up their lobby UI
-            gameStartEvent:FireAllClients()
-        else
-            -- Not enough players, reset
-            gameStarted = false
-            print("A player left at the last second. Resetting ready count.")
-        end
+        -- Tell all clients to clean up their lobby UI
+        gameStartEvent:FireAllClients()
     end
 end
 
--- Listen for a player clicking the "Ready" button
-playerReadyEvent.OnServerEvent:Connect(function(player)
-    if not readyPlayers[player] then
-        print(player.Name .. " has readied up.")
-        readyPlayers[player] = true
-        tryStartGame()
-    end
+-- Listen for a player joining
+Players.PlayerAdded:Connect(function(player)
+    print(player.Name .. " has joined the server.")
+    -- A small delay to ensure the player is fully loaded in
+    task.wait(1)
+    tryStartGame()
 end)
 
--- Handle players leaving
+-- Handle players leaving (optional, but good practice for testing)
 Players.PlayerRemoving:Connect(function(player)
-    if readyPlayers[player] then
-        readyPlayers[player] = nil
-        print(player.Name .. " has left, removing from ready list.")
-        -- In a real game, you might want to update the player count here.
-        -- For now, the check in tryStartGame is sufficient.
+    if gameStarted then
+        -- In a real game, you might handle this, but for testing, we don't need to.
+        print(player.Name .. " has left after the game started.")
     end
 end)
 
-print("Server initialization complete. Waiting for players to ready up.")
+print("Server initialization complete. Waiting for players to join.")
 
 -- =============================================================================
--- Handle Player Interactions
+-- Handle Player Interactions (Copied from original file)
 -- =============================================================================
 local CollectionService = game:GetService("CollectionService")
 local interactionEvent = EventsFolder:WaitForChild("InteractionEvent")
