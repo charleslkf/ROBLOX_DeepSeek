@@ -96,7 +96,8 @@ needle.Parent = mainFrame
 -- Role Check
 -- =============================================================================
 -- This controller should ONLY run for Survivors.
-local roleValue = character:WaitForChild("Role")
+-- More robust role-checking to prevent infinite yield on client.
+local roleValue = character:WaitForChild("Role", 10)
 
 local function onRoleChanged(newRole)
     if newRole == "Killer" then
@@ -108,8 +109,15 @@ local function onRoleChanged(newRole)
     end
 end
 
-onRoleChanged(roleValue.Value) -- Initial check
-roleValue.Changed:Connect(onRoleChanged)
+if roleValue then
+    onRoleChanged(roleValue.Value) -- Initial check
+    roleValue.Changed:Connect(onRoleChanged)
+else
+    -- If the Role value never appears, we can't know our role.
+    -- The safe assumption is to destroy the script.
+    warn("InteractionController on " .. character.Name .. " could not find Role value after 10 seconds. Destroying script.")
+    script:Destroy()
+end
 
 -- =============================================================================
 -- Services and Events

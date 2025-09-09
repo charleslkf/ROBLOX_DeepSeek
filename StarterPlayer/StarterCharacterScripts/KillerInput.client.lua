@@ -144,6 +144,14 @@ local function onRoleChanged(newRole)
 end
 
 -- Main execution: Wait for the Role object, then connect to its events.
-local roleValue = character:WaitForChild("Role")
-onRoleChanged(roleValue.Value) -- Initial check
-roleValue.Changed:Connect(onRoleChanged)
+-- More robust role-checking to prevent infinite yield on client.
+local roleValue = character:WaitForChild("Role", 10)
+
+if roleValue then
+    onRoleChanged(roleValue.Value) -- Initial check
+    roleValue.Changed:Connect(onRoleChanged)
+else
+    -- If the Role value never appears, this script is not needed.
+    warn("KillerInput on " .. character.Name .. " could not find Role value after 10 seconds. Destroying script.")
+    script:Destroy()
+end
