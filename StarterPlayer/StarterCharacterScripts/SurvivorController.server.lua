@@ -1,6 +1,9 @@
--- This script is disabled by default. It will be enabled by the GameManager
--- after the 'Survivor' role has been assigned.
-script.Disabled = true
+-- This script waits for an 'Activate' event before running its logic.
+-- The event is fired by the GameManager after the character's role is assigned.
+
+local activateEvent = Instance.new("BindableEvent")
+activateEvent.Name = "Activate"
+activateEvent.Parent = script
 
 local function Initialize()
     --[[
@@ -15,7 +18,7 @@ local function Initialize()
     local character = script.Parent
 
     -- Get components. We can use WaitForChild here because the GameManager
-    -- guarantees they exist before enabling this script.
+    -- guarantees they exist before this function is called.
     local player = Players:GetPlayerFromCharacter(character)
     local humanoid = character:WaitForChild("Humanoid")
     local damageEvent = character:WaitForChild("DamageEvent")
@@ -40,7 +43,6 @@ local function Initialize()
         local newSpeed = healthStateSpeeds[newValue]
         if newSpeed ~= nil then
             humanoid.WalkSpeed = newSpeed
-            -- Add visual state for being downed
             if newValue == "Downed" then
                 humanoid.PlatformStand = true
             else
@@ -66,11 +68,5 @@ local function Initialize()
     print("SurvivorController: Health and damage systems initialized for " .. player.Name)
 end
 
--- Wait until the script is enabled by the GameManager
-while script.Disabled do
-    print("SurvivorController is waiting, Disabled is " .. tostring(script.Disabled))
-    task.wait(0.5)
-end
-
--- Run the main logic
-Initialize()
+-- Wait for the activate signal from the GameManager
+activateEvent.Event:Connect(Initialize)

@@ -1,6 +1,10 @@
--- This script is disabled by default. It will be enabled by the GameManager
--- after the 'Survivor' role has been assigned.
-script.Disabled = true
+-- This script waits for an 'Activate' event before running its logic.
+-- The event is fired by the ControllerDispatcher after receiving a signal
+-- from the server.
+
+local activateEvent = Instance.new("BindableEvent")
+activateEvent.Name = "Activate"
+activateEvent.Parent = script
 
 local function Initialize()
     --[[InteractionController.client.lua
@@ -15,7 +19,6 @@ local function Initialize()
     local CollectionService = game:GetService("CollectionService")
 
     local localPlayer = Players.LocalPlayer
-    -- Use a robust method to get the character
     local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
     local characterRoot = character:WaitForChild("HumanoidRootPart")
@@ -116,16 +119,13 @@ local function Initialize()
     -- Functions
     -- =============================================================================
 
-    -- Function to stop the current interaction and skill check
     local function cancelInteraction()
         if skillCheckHeartbeatConnection then skillCheckHeartbeatConnection:Disconnect() end
         if skillCheckInputConnection then skillCheckInputConnection:Disconnect() end
         skillCheckGui.Enabled = false
         isSkillCheckActive = false
-        -- We don't reset isInteracting here, the server will tell us when to do that.
     end
 
-    -- Function to run the skill check minigame
     local function runSkillCheck()
         if isSkillCheckActive then return end
         isSkillCheckActive = true
@@ -159,15 +159,12 @@ local function Initialize()
     -- Event Listeners
     -- =============================================================================
 
-    -- Listen for the server to tell us to start a skill check
     startSkillCheckEvent.OnClientEvent:Connect(runSkillCheck)
 
-    -- Listen for the server to tell us the interaction is fully over
     stopInteractionEvent.OnClientEvent:Connect(function()
         isInteracting = false
     end)
 
-    -- Handle player input to start an interaction
     UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
         if gameProcessedEvent then return end
         if input.KeyCode == Enum.KeyCode.E then
@@ -179,21 +176,18 @@ local function Initialize()
         end
     end)
 
-    -- Main proximity detection loop
     RunService.Heartbeat:Connect(function(deltaTime)
         if isInteracting then
-            -- NEW: If we are interacting, check if we've moved too far away
             if currentInteractionTarget then
                 local distance = (characterRoot.Position - currentInteractionTarget.Position).Magnitude
-                if distance > INTERACTION_DISTANCE + 2 then -- Add a buffer
-                    skillCheckResultEvent:FireServer(false) -- Moving away counts as failure
+                if distance > INTERACTION_DISTANCE + 2 then
+                    skillCheckResultEvent:FireServer(false)
                     cancelInteraction()
                 end
             end
             return
         end
 
-        -- Find the closest interactable object
         local closestDistance = INTERACTION_DISTANCE
         local target = nil
         for _, part in ipairs(CollectionService:GetTagged("Interactable")) do
@@ -220,23 +214,8 @@ local function Initialize()
         end
     end)
 
-    print("Unified InteractionController enabled and initialized for Survivor.")
+    print("InteractionController: Activated and initialized for Survivor.")
 end
 
--- Wait until the script is enabled by the GameManager
-while script.Disabled do
-    print("InteractionController is waiting, Disabled is " .. tostring(script.Disabled))
-    task.wait(0.5)
-end
-
--- This script should not run for the killer.
--- The GameManager should only enable it for survivors.
--- As a final safeguard, we'll check the role value.
-local roleValue = script.Parent:FindFirstChild("Role")
-if roleValue and roleValue.Value == "Survivor" then
-    Initialize()
-else
-    -- This case should not happen if GameManager logic is correct,
-    -- but this prevents the script from running on the Killer if something goes wrong.
-    script:Destroy()
-end
+-- Wait for the activate signal
+activateEvent.Event:Connect(Initialize)

@@ -29,7 +29,8 @@ GameManager.GeneratorsLeft = 5
 
 --[[
     Assigns roles to the players in the game.
-    This function now uses a RemoteEvent to reliably activate client-side scripts.
+    This function uses a RemoteEvent to reliably activate client-side scripts
+    and a BindableEvent to activate the server-side one.
 ]]
 function GameManager:AssignRoles(playerList)
     self.Players = {}
@@ -37,8 +38,6 @@ function GameManager:AssignRoles(playerList)
     local function setupCharacter(player, role)
         local character = player.Character
         if not character then
-            -- If character doesn't exist, wait for it to be added.
-            -- This is a fallback; InitServer should ideally wait for characters.
             character = player.CharacterAdded:Wait()
         end
 
@@ -56,7 +55,7 @@ function GameManager:AssignRoles(playerList)
                 local SURVIVOR_SPEED = 16
                 humanoid.WalkSpeed = SURVIVOR_SPEED * 1.2 -- 20% faster
             end
-            -- Activate the client-side controller
+            -- Activate the client-side controller via the dispatcher
             activateClientControllerEvent:FireClient(player, "KillerInput")
 
         elseif role == "Survivor" then
@@ -65,10 +64,11 @@ function GameManager:AssignRoles(playerList)
             damageEvent.Name = "DamageEvent"
             damageEvent.Parent = character
 
-            -- Activate the server-side controller directly
+            -- Activate the server-side controller directly by firing its internal event
             local survivorScript = character:FindFirstChild("SurvivorController", true)
             if survivorScript then
-                survivorScript.Disabled = false
+                local activateSignal = survivorScript:FindFirstChild("Activate")
+                if activateSignal then activateSignal:Fire() end
             end
             -- Activate the client-side controller via the dispatcher
             activateClientControllerEvent:FireClient(player, "InteractionController")
@@ -92,9 +92,6 @@ function GameManager:AssignRoles(playerList)
     end
 end
 
---[[
-    Starts the game with a given set of players.
-]]
 function GameManager:StartGame(players)
     if self.CurrentState == self.GameState.PreGame and #players >= self.MIN_PLAYERS then
         print("Starting game with " .. #players .. " players...")
@@ -106,9 +103,6 @@ function GameManager:StartGame(players)
     end
 end
 
---[[
-    Ends the game.
-]]
 function GameManager:EndGame(winner)
     if self.CurrentState == self.GameState.InGame then
         self.CurrentState = self.GameState.PostGame
@@ -116,16 +110,10 @@ function GameManager:EndGame(winner)
     end
 end
 
---[[
-    Checks the win conditions.
-]]
 function GameManager:CheckWinConditions()
     -- To be implemented
 end
 
---[[
-    Called when a generator is completed.
-]]
 function GameManager:GeneratorCompleted()
     if self.CurrentState == self.GameState.InGame then
         self.GeneratorsLeft = self.GeneratorsLeft - 1

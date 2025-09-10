@@ -1,6 +1,10 @@
--- This script is disabled by default. It will be enabled by the GameManager
--- after the 'Killer' role has been assigned.
-script.Disabled = true
+-- This script waits for an 'Activate' event before running its logic.
+-- The event is fired by the ControllerDispatcher after receiving a signal
+-- from the server.
+
+local activateEvent = Instance.new("BindableEvent")
+activateEvent.Name = "Activate"
+activateEvent.Parent = script
 
 local function Initialize()
     --[[
@@ -30,8 +34,6 @@ local function Initialize()
     local interactionCooldown = 0.5 -- seconds
     local canInteract = true
     local interactionRange = 8 -- studs
-
-    -- Sound
 
     -- =============================================================================
     -- Helper Functions
@@ -89,7 +91,7 @@ local function Initialize()
     -- Main Logic
     -- =============================================================================
 
-    print("KillerInput.client.lua: Enabled and initializing input.")
+    print("KillerInput.client.lua: Activated and initializing input.")
 
     -- Listen for input
     UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
@@ -129,11 +131,5 @@ local function Initialize()
     end)
 end
 
--- Wait until the script is enabled by the GameManager
-while script.Disabled do
-    print("KillerInput is waiting, Disabled is " .. tostring(script.Disabled))
-    task.wait(0.5)
-end
-
--- Run the main logic
-Initialize()
+-- Wait for the activate signal
+activateEvent.Event:Connect(Initialize)
