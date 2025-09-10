@@ -5,6 +5,10 @@
     player roles, and win/loss conditions.
 ]]
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local EventsFolder = ReplicatedStorage:WaitForChild("Events")
+local activateClientControllerEvent = EventsFolder:WaitForChild("ActivateClientControllerEvent")
+
 local GameManager = {}
 
 -- Game State Enum
@@ -25,57 +29,49 @@ GameManager.GeneratorsLeft = 5
 
 --[[
     Assigns roles to the players in the game.
-    One player is randomly chosen as the Killer from the provided list.
+    This function now uses a RemoteEvent to reliably activate client-side scripts.
 ]]
 function GameManager:AssignRoles(playerList)
     self.Players = {}
 
-    -- Helper function to tag a character with their role.
-    -- This is robust against characters not being loaded yet.
-    local function tagCharacter(player, role)
-        local function doTagging(character)
-            -- This function does the actual work
-            local oldTag = character:FindFirstChild("Role")
-            if oldTag then oldTag:Destroy() end
-
-            local roleValue = Instance.new("StringValue")
-            roleValue.Name = "Role"
-            roleValue.Value = role
-            roleValue.Parent = character
-            print("GameManager: Tagged " .. player.Name .. " as " .. role)
-
-            -- Enable the correct controller scripts for the assigned role
-            if role == "Killer" then
-                local killerScript = character:FindFirstChild("KillerInput", true)
-                if killerScript then
-                    killerScript.Disabled = false
-                    print("GameManager: Enabled KillerInput for " .. player.Name)
-                end
-            elseif role == "Survivor" then
-                local survivorScript = character:FindFirstChild("SurvivorController", true)
-                if survivorScript then
-                    survivorScript.Disabled = false
-                    print("GameManager: Enabled SurvivorController for " .. player.Name)
-                end
-                local interactionScript = character:FindFirstChild("InteractionController", true)
-                if interactionScript then
-                    interactionScript.Disabled = false
-                    print("GameManager: Enabled InteractionController for " .. player.Name)
-                end
-            end
+    local function setupCharacter(player, role)
+        local character = player.Character
+        if not character then
+            -- If character doesn't exist, wait for it to be added.
+            -- This is a fallback; InitServer should ideally wait for characters.
+            character = player.CharacterAdded:Wait()
         end
 
-        if player.Character then
-            doTagging(player.Character)
-        else
-            -- Wait for the character to be added, then tag it.
-            -- Use a one-time event connection to prevent issues on respawn.
-            local connection
-            connection = player.CharacterAdded:Connect(function(character)
-                doTagging(character)
-                -- Disconnect the event so it doesn't fire again on respawn.
-                connection:Disconnect()
-            end)
+        -- Create Role tag
+        local roleValue = Instance.new("StringValue")
+        roleValue.Name = "Role"
+        roleValue.Value = role
+        roleValue.Parent = character
+        print("GameManager: Tagged " .. player.Name .. " as " .. role)
+
+        if role == "Killer" then
+            -- Set Killer's walk speed
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                local SURVIVOR_SPEED = 16
+                humanoid.WalkSpeed = SURVIVOR_SPEED * 1.2 -- 20% faster
+            end
+            -- Activate the client-side controller
+            activateClientControllerEvent:FireClient(player, "KillerInput")
+
+        elseif role == "Survivor" then
+            -- Create a DamageEvent for the survivor
+            local damageEvent = Instance.new("BindableEvent")
+            damageEvent.Name = "DamageEvent"
+            damageEvent.Parent = character
+
+            -- Activate the server-side controller directly
+            local survivorScript = character:FindFirstChild("SurvivorController", true)
+            if survivorScript then
+                survivorScript.Disabled = false
+            end
+            -- Activate the client-side controller via the dispatcher
+            activateClientControllerEvent:FireClient(player, "InteractionController")
         end
     end
 
@@ -83,34 +79,15 @@ function GameManager:AssignRoles(playerList)
     local killerIndex = math.random(1, #playerList)
     local killerPlayer = playerList[killerIndex]
     self.Players[killerPlayer] = "Killer"
-    tagCharacter(killerPlayer, "Killer")
+    setupCharacter(killerPlayer, "Killer")
     print(killerPlayer.Name .. " has been chosen as the Killer!")
-
-    -- Set Killer's walk speed
-    local killerCharacter = killerPlayer.Character
-    if killerCharacter then
-        local humanoid = killerCharacter:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            local SURVIVOR_SPEED = 16
-            humanoid.WalkSpeed = SURVIVOR_SPEED * 1.2 -- 20% faster
-            print("GameManager: " .. killerPlayer.Name .. "'s speed set to " .. humanoid.WalkSpeed)
-        end
-    end
 
     -- Assign the rest as survivors
     for i, player in ipairs(playerList) do
         if i ~= killerIndex then
             self.Players[player] = "Survivor"
-            tagCharacter(player, "Survivor")
+            setupCharacter(player, "Survivor")
             print(player.Name .. " is a Survivor.")
-
-            -- Create a DamageEvent for the survivor
-            local character = player.Character
-            if character then
-                local damageEvent = Instance.new("BindableEvent")
-                damageEvent.Name = "DamageEvent"
-                damageEvent.Parent = character
-            end
         end
     end
 end
@@ -124,7 +101,6 @@ function GameManager:StartGame(players)
         self:AssignRoles(players)
         self.CurrentState = self.GameState.InGame
         print("The game has started!")
-        -- More logic to come here (e.g., teleporting players)
     else
         warn("GameManager:StartGame - Could not start game. State: " .. self.CurrentState .. ", Players: " .. #players)
     end
@@ -137,7 +113,6 @@ function GameManager:EndGame(winner)
     if self.CurrentState == self.GameState.InGame then
         self.CurrentState = self.GameState.PostGame
         print(winner .. " wins!")
-        -- More logic to come here (e.g., showing end-game screen)
     end
 end
 
@@ -145,12 +120,7 @@ end
     Checks the win conditions.
 ]]
 function GameManager:CheckWinConditions()
-    if self.CurrentState == self.GameState.InGame then
-        -- Killer win condition: All survivors are sacrificed.
-        -- Survivor win condition: At least one survivor escapes.
-
-        -- This will be implemented in a later task.
-    end
+    -- To be implemented
 end
 
 --[[
@@ -163,7 +133,6 @@ function GameManager:GeneratorCompleted()
 
         if self.GeneratorsLeft <= 0 then
             print("All generators have been repaired! The exit gates are now powered.")
-            -- Logic to power the exit gates will go here.
         end
     end
 end
