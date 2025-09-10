@@ -15,7 +15,8 @@ local function Initialize()
     local CollectionService = game:GetService("CollectionService")
 
     local localPlayer = Players.LocalPlayer
-    local character = localPlayer.Character
+    -- Use a robust method to get the character
+    local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
     local characterRoot = character:WaitForChild("HumanoidRootPart")
     local playerGui = localPlayer:WaitForChild("PlayerGui")
@@ -222,19 +223,19 @@ local function Initialize()
     print("Unified InteractionController enabled and initialized for Survivor.")
 end
 
--- Wait for the script to be enabled before running the main logic
-script.Changed:Connect(function(property)
-    if property == "Disabled" and script.Disabled == false then
-        -- This script should not run for the killer.
-        -- The GameManager should only enable it for survivors.
-        -- As a final safeguard, we'll check the role value.
-        local roleValue = script.Parent:FindFirstChild("Role")
-        if roleValue and roleValue.Value == "Survivor" then
-            Initialize()
-        else
-            -- This case should not happen if GameManager logic is correct.
-            warn("InteractionController was enabled on a non-survivor. Self-destructing.")
-            script:Destroy()
-        end
-    end
-end)
+-- Wait until the script is enabled by the GameManager
+while script.Disabled do
+    task.wait(0.1)
+end
+
+-- This script should not run for the killer.
+-- The GameManager should only enable it for survivors.
+-- As a final safeguard, we'll check the role value.
+local roleValue = script.Parent:FindFirstChild("Role")
+if roleValue and roleValue.Value == "Survivor" then
+    Initialize()
+else
+    -- This case should not happen if GameManager logic is correct,
+    -- but this prevents the script from running on the Killer if something goes wrong.
+    script:Destroy()
+end

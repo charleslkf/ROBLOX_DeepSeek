@@ -66,9 +66,10 @@ local function Initialize()
     print("SurvivorController: Health and damage systems initialized for " .. player.Name)
 end
 
--- Wait for the script to be enabled before running the main logic
-script.Changed:Connect(function(property)
-    if property == "Disabled" and script.Disabled == false then
-        Initialize()
-    end
-end)
+-- Wait until the script is enabled by the GameManager
+while script.Disabled do
+    task.wait(0.1)
+end
+
+-- Run the main logic
+Initialize()
