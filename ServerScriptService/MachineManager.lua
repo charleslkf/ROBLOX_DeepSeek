@@ -141,7 +141,6 @@ function MachineManager:_CreateMachinePart(machineInstance: table, machineType: 
 			ShowMachineUI:FireClient(player, machineType, machineInstance.ID, machineInstance.Part)
 			if machineType == "MemoryMachine" then
 				local pattern = machineInstance:GeneratePattern()
-				print("Server sending pattern of length: " .. #pattern) -- DEBUG
 				task.wait(0.1)
 				ShowMemoryMachinePattern:FireClient(player, machineInstance.ID, pattern, machineInstance.PatternLength)
 			end

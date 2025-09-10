@@ -78,8 +78,8 @@ local function playPattern(pattern: {{X: number, Y: number}})
 	statusLabel.Text = "Watch the pattern..."
 	task.wait(1)
 
-	for i, step in ipairs(pattern) do
-		print("Playing pattern step " .. i) -- DEBUG
+	for _, step in ipairs(pattern) do
+		task.wait() -- Add a 1-frame delay to ensure sequential execution
 		if not guiInstance.Enabled then return end -- Stop if player walked away
 		local buttonName = `Tile_{step.Y}_{step.X}`
 		local button = gridContainer:FindFirstChild(buttonName)
@@ -117,7 +117,6 @@ end)
 
 ShowMemoryMachinePattern.OnClientEvent:Connect(function(machineID: string, pattern: table, patternLength: number)
 	if guiInstance.Enabled and activeMachineID == machineID then
-		print("Client received pattern of length: " .. #pattern) -- DEBUG
 		requiredPatternLength = patternLength
 		playPattern(pattern)
 	end
