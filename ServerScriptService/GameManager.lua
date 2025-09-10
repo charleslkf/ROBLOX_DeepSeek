@@ -112,7 +112,7 @@ function GameManager:StartGame(players)
 
         -- Initialize the Machine Manager
         MachineManager:Init()
-        MachineManager.MachineCompleted:Connect(function()
+        MachineManager.MachineCompleted.Event:Connect(function()
             self:GeneratorCompleted()
         end)
 
