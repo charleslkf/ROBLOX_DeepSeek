@@ -18,6 +18,7 @@ local ReportSkillCheckResult = EventsFolder:WaitForChild("ReportSkillCheckResult
 local StartSkillCheck = EventsFolder:WaitForChild("StartSkillCheck")
 local ShowMachineUI = EventsFolder:WaitForChild("ShowMachineUI")
 local ShowMemoryMachinePattern = EventsFolder:WaitForChild("ShowMemoryMachinePattern")
+local MachineFeedback = EventsFolder:WaitForChild("MachineFeedback")
 
 -- A dictionary to hold the loaded minigame modules
 local MinigameModules = {}
@@ -52,7 +53,9 @@ function MachineManager:Init()
 		local machineInstance = activeMachines[machineID]
 		if not machineInstance or machineInstance.IsCompleted then return end
 
-		if machineInstance:ValidateSolution(solution) then
+		local success = machineInstance:ValidateSolution(solution)
+		MachineFeedback:FireClient(player, machineID, success)
+		if success then
 			machineInstance.IsCompleted = true
 			MachineManager.MachineCompleted:Fire(machineInstance)
 		end
@@ -138,6 +141,7 @@ function MachineManager:_CreateMachinePart(machineInstance: table, machineType: 
 			ShowMachineUI:FireClient(player, machineType, machineInstance.ID, machineInstance.Part)
 			if machineType == "MemoryMachine" then
 				local pattern = machineInstance:GeneratePattern()
+				print("Server sending pattern of length: " .. #pattern) -- DEBUG
 				task.wait(0.1)
 				ShowMemoryMachinePattern:FireClient(player, machineInstance.ID, pattern, machineInstance.PatternLength)
 			end

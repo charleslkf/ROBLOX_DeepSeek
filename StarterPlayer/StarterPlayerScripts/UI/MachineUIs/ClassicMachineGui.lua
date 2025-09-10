@@ -111,11 +111,12 @@ local function createGui(): ScreenGui
 					bar.Interactable = false
 					bar.Parent = tileInstance
 				elseif tileData == "L" then
+					-- Correctly draw an L-shape that meets at the center without overlapping.
 					local vertBar = Instance.new("TextLabel")
 					vertBar.Text = ""
 					vertBar.Name = "VertBar"
-					vertBar.Size = UDim2.new(0.3, 0, 0.65, 0)
-					vertBar.Position = UDim2.new(0.325, 0, 0.5, 0)
+					vertBar.Size = UDim2.new(0.3, 0, 0.5, 0) -- Half height
+					vertBar.Position = UDim2.new(0.5, 0, 0.25, 0) -- Positioned in top half
 					vertBar.AnchorPoint = Vector2.new(0.5, 0.5)
 					vertBar.BackgroundColor3 = Color3.fromRGB(255, 150, 0)
 					vertBar.BorderSizePixel = 0
@@ -125,8 +126,8 @@ local function createGui(): ScreenGui
 					local horizBar = Instance.new("TextLabel")
 					horizBar.Text = ""
 					horizBar.Name = "HorizBar"
-					horizBar.Size = UDim2.new(0.65, 0, 0.3, 0)
-					horizBar.Position = UDim2.new(0.675, 0, 0.5, 0)
+					horizBar.Size = UDim2.new(0.5, 0, 0.3, 0) -- Half width
+					horizBar.Position = UDim2.new(0.75, 0, 0.5, 0) -- Positioned in right half
 					horizBar.AnchorPoint = Vector2.new(0.5, 0.5)
 					horizBar.BackgroundColor3 = Color3.fromRGB(255, 150, 0)
 					horizBar.BorderSizePixel = 0
@@ -158,6 +159,19 @@ local function createGui(): ScreenGui
 	submitButton.Font = Enum.Font.SourceSansBold
 	submitButton.TextSize = 20
 	submitButton.Parent = mainFrame
+
+	-- Feedback Label
+	local feedbackLabel = Instance.new("TextLabel")
+	feedbackLabel.Name = "FeedbackLabel"
+	feedbackLabel.Size = UDim2.new(1, 0, 0, 30)
+	feedbackLabel.Position = UDim2.new(0.5, 0, 0, 55)
+	feedbackLabel.AnchorPoint = Vector2.new(0.5, 0)
+	feedbackLabel.BackgroundTransparency = 1
+	feedbackLabel.Font = Enum.Font.SourceSansBold
+	feedbackLabel.TextSize = 18
+	feedbackLabel.TextColor3 = Color3.new(1, 1, 1)
+	feedbackLabel.Visible = false
+	feedbackLabel.Parent = mainFrame
 
 	return screenGui
 end

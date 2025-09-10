@@ -16,6 +16,7 @@ print("ClassicMachineController.client.lua loaded.")
 local EventsFolder = ReplicatedStorage:WaitForChild("Events")
 local ShowMachineUIEvent = EventsFolder:WaitForChild("ShowMachineUI")
 local SubmitClassicMachineSolution = EventsFolder:WaitForChild("SubmitClassicMachineSolution")
+local MachineFeedbackEvent = EventsFolder:WaitForChild("MachineFeedback")
 
 -- Get UI module
 local ClassicMachineGuiModule = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("MachineUIs"):WaitForChild("ClassicMachineGui"))
@@ -27,6 +28,8 @@ print("ClassicMachineController: GUI instance created.")
 
 local gridContainer = guiInstance.MainFrame.GridContainer
 local submitButton = guiInstance.MainFrame.SubmitButton
+-- Get the new feedback label from the GUI module
+local feedbackLabel = guiInstance.MainFrame.FeedbackLabel
 
 local activeMachineID: string?
 local activeMachinePart: Part?
@@ -63,6 +66,7 @@ end
 local function showGui(machineID: string, machinePart: Part)
 	activeMachineID = machineID
 	activeMachinePart = machinePart
+    feedbackLabel.Visible = false -- Hide feedback label initially
 
     -- Randomize tile rotations when showing the GUI
     for _, tile in ipairs(gridContainer:GetChildren()) do
@@ -88,6 +92,23 @@ ShowMachineUIEvent.OnClientEvent:Connect(function(machineType: string, machineID
     end
 end)
 
+-- Listen for feedback from the server
+MachineFeedbackEvent.OnClientEvent:Connect(function(machineID: string, success: boolean)
+    if activeMachineID == machineID then
+        feedbackLabel.Text = success and "Success!" or "Failed. Try Again."
+        feedbackLabel.TextColor3 = success and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 50, 50)
+        feedbackLabel.Visible = true
+
+        -- Hide the feedback after a couple of seconds, but only if the puzzle was a failure
+        if not success then
+            task.wait(2)
+            feedbackLabel.Visible = false
+        else
+            -- If it was a success, the main GUI will hide anyway.
+        end
+    end
+end)
+
 -- Connect click-to-rotate for each interactive tile
 for _, tile in ipairs(gridContainer:GetChildren()) do
     if tile:IsA("TextButton") then
@@ -100,6 +121,7 @@ end
 -- Connect the submit button to send the solution to the server
 submitButton.MouseButton1Click:Connect(function()
     print("Submit button clicked! Sending solution to server.")
+    feedbackLabel.Visible = false -- Hide old feedback on new submission
 
     local solution = {}
     local children = gridContainer:GetChildren()
@@ -125,7 +147,8 @@ submitButton.MouseButton1Click:Connect(function()
         warn("No active machine ID found when submitting solution!")
     end
 
-    hideGui()
+    -- Don't hide the GUI immediately, wait for feedback
+    -- hideGui()
 end)
 
 print("ClassicMachineController: Event listeners connected.")
