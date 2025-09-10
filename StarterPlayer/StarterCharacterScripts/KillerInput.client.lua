@@ -131,7 +131,8 @@ end
 
 -- Wait until the script is enabled by the GameManager
 while script.Disabled do
-    task.wait(0.1)
+    print("KillerInput is waiting, Disabled is " .. tostring(script.Disabled))
+    task.wait(0.5)
 end
 
 -- Run the main logic

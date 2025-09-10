@@ -29,6 +29,7 @@ activateEvent.OnClientEvent:Connect(function(scriptName)
     if controllerScript then
         print("ControllerDispatcher: Received signal to activate " .. scriptName)
         controllerScript.Disabled = false
+        print("ControllerDispatcher: Set " .. scriptName .. ".Disabled to " .. tostring(controllerScript.Disabled))
     else
         warn("ControllerDispatcher: Server tried to activate script '" .. scriptName .. "' but it was not found.")
     end
