@@ -241,24 +241,7 @@ for i, pos in ipairs(playerSpawnPositions) do
 end
 
 -- Generator Spawns
-local generatorSpawns = Instance.new("Folder")
-generatorSpawns.Name = "GeneratorSpawns"
-generatorSpawns.Parent = objectives
-local generatorSpawnPositions = {
-    Vector3.new(-40, 1, 40), Vector3.new(40, 1, 40), Vector3.new(-40, 1, -40),
-    Vector3.new(40, 1, -40), Vector3.new(0, 1, -60)
-}
-for i, pos in ipairs(generatorSpawnPositions) do
-    local genSpawn = createPart("Generator" .. i, generatorSpawns, {
-        Anchored = true,
-        CanCollide = false,
-        Size = Vector3.new(2, 2, 2),
-        Transparency = 0.5,
-        Color = Color3.fromRGB(255, 255, 0)
-    })
-    genSpawn.Position = pos
-    CollectionService:AddTag(genSpawn, "Interactable")
-    CollectionService:AddTag(genSpawn, "Generator")
-end
+-- NOTE: Generator spawn logic has been removed.
+-- The new MachineManager now handles creating machines dynamically.
 
 print("MapBuilder.server.lua: Map generation complete (v3).")
