@@ -141,6 +141,12 @@ function MachineManager:_CreateMachinePart(machineInstance: table, machineType: 
 			ShowMachineUI:FireClient(player, machineType, machineInstance.ID, machineInstance.Part)
 			if machineType == "MemoryMachine" then
 				local pattern = machineInstance:GeneratePattern()
+				local ok, jsonPattern = pcall(game.HttpService.JSONEncode, game.HttpService, pattern)
+				if ok then
+					print("Server sending pattern: " .. jsonPattern)
+				else
+					print("Server sending pattern: (Could not encode to JSON)")
+				end
 				task.wait(0.1)
 				ShowMemoryMachinePattern:FireClient(player, machineInstance.ID, pattern, machineInstance.PatternLength)
 			end

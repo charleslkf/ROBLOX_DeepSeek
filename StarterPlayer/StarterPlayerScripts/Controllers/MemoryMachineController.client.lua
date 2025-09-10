@@ -117,6 +117,12 @@ end)
 
 ShowMemoryMachinePattern.OnClientEvent:Connect(function(machineID: string, pattern: table, patternLength: number)
 	if guiInstance.Enabled and activeMachineID == machineID then
+		local ok, jsonPattern = pcall(game.HttpService.JSONEncode, game.HttpService, pattern)
+		if ok then
+			print("Client received pattern: " .. jsonPattern)
+		else
+			print("Client received pattern: (Could not encode to JSON)")
+		end
 		requiredPatternLength = patternLength
 		playPattern(pattern)
 	end
